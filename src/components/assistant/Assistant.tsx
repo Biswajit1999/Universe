@@ -8,12 +8,16 @@ import {
   Radio,
   Save,
   Send,
+  Square,
   Sparkles,
   Volume2,
   VolumeX,
   X,
 } from "lucide-react";
 import { askAI } from "@/lib/ai/provider";
+import { askOrchestrator } from "@/lib/agents/client";
+import { AGENT_PROFILES } from "@/lib/agents/profiles";
+import type { AgentEvent, AgentId } from "@/lib/agents/types";
 import {
   isSpeechSupported,
   isVoiceSupported,
@@ -27,7 +31,7 @@ import { useSettings } from "@/lib/state/settings";
 import { useVault } from "@/lib/state/vault";
 import { Badge } from "@/components/ui/Badge";
 import { Markdown } from "@/components/ui/Markdown";
-import type { AIMessage } from "@/lib/types";
+import type { AIMessage, AIResponse } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const SUGGESTIONS = [
@@ -61,10 +65,13 @@ export function Assistant() {
   const [voicePhase, setVoicePhase] = useState<VoicePhase>("idle");
   const [voiceTranscript, setVoiceTranscript] = useState("");
   const [playingMessage, setPlayingMessage] = useState<number | null>(null);
+  const [trace, setTrace] = useState<AgentEvent[]>([]);
+  const [activeAgent, setActiveAgent] = useState<AgentId>("core");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const voiceRef = useRef<VoiceSession | null>(null);
   const speechRef = useRef<SpeechSession | null>(null);
+  const requestRef = useRef<AbortController | null>(null);
 
   useEffect(() => setVoiceAvailable(isVoiceSupported() && isSpeechSupported()), []);
 
@@ -108,17 +115,42 @@ export function Assistant() {
       setMessages((current) => [...current, { role: "user", content: question }]);
       setInput("");
       setThinking(true);
+      setTrace([]);
       const useVoice = voiceMode || forceVoice;
       if (useVoice) setVoicePhase("thinking");
 
       const voiceContext = useVoice
         ? `${context ? `${context}. ` : ""}Voice conversation: answer naturally in under 180 words unless the user asks for detail.`
         : context;
-      const response = await askAI({ prompt: question, context: voiceContext, history }, { demoMode });
+      requestRef.current?.abort();
+      const controller = new AbortController();
+      requestRef.current = controller;
+      let response: AIResponse & { agent?: AgentId; requestId?: string };
+      try {
+        response = await askOrchestrator(
+          { prompt: question, context: voiceContext, history, demoMode },
+          {
+            signal: controller.signal,
+            onEvent: (event) => {
+              setTrace((current) => [...current.slice(-7), event]);
+              if (event.agent) setActiveAgent(event.agent);
+            },
+          },
+        );
+      } catch (error) {
+        if ((error as Error).name === "AbortError") {
+          setThinking(false);
+          setVoicePhase("idle");
+          return;
+        }
+        response = await askAI({ prompt: question, context: voiceContext, history }, { demoMode });
+      } finally {
+        requestRef.current = null;
+      }
       const messageIndex = history.length + 1;
       setMessages((current) => [
         ...current,
-        { role: "assistant", content: response.text, mode: response.mode },
+        { role: "assistant", content: response.text, mode: response.mode, agent: response.agent ?? "core", requestId: response.requestId },
       ]);
       setThinking(false);
       if (useVoice && autoSpeak) speakResponse(response.text, messageIndex);
@@ -180,6 +212,8 @@ export function Assistant() {
   }, [beginListening, voicePhase]);
 
   const closeAssistant = useCallback(() => {
+    requestRef.current?.abort();
+    requestRef.current = null;
     stopVoiceActivity();
     setOpen(false);
   }, [stopVoiceActivity]);
@@ -218,6 +252,7 @@ export function Assistant() {
     () => () => {
       voiceRef.current?.stop();
       speechRef.current?.cancel();
+      requestRef.current?.abort();
       stopSpeech();
     },
     [],
@@ -264,7 +299,9 @@ export function Assistant() {
               </div>
               <div>
                 <p className="text-sm font-semibold tracking-wide">HEY UNIVERSE</p>
-                <p className="text-[10px] uppercase tracking-[0.22em] text-sky-200/45">Scientific intelligence link</p>
+                <p className="text-[10px] uppercase tracking-[0.22em] text-sky-200/45">
+                  {thinking ? `${AGENT_PROFILES[activeAgent].name} · ${AGENT_PROFILES[activeAgent].role}` : "Scientific intelligence link"}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -300,6 +337,31 @@ export function Assistant() {
           {pendingContext && (
             <div className="relative z-10 border-b border-sky-300/10 bg-cyan-300/[0.035] px-4 py-2 text-[10px] uppercase tracking-wider text-sky-100/50">
               Context channel · {pendingContext}
+            </div>
+          )}
+
+          {trace.length > 0 && (
+            <div className="relative z-10 border-b border-sky-300/10 bg-[#050b16]/88 px-4 py-2.5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-cyan-100/55">Agent execution</p>
+                {thinking && (
+                  <button
+                    type="button"
+                    onClick={() => requestRef.current?.abort()}
+                    className="flex items-center gap-1 rounded border border-rose-300/20 px-2 py-1 text-[9px] uppercase tracking-wider text-rose-200/70 transition hover:bg-rose-300/[0.06]"
+                  >
+                    <Square size={9} /> Cancel
+                  </button>
+                )}
+              </div>
+              <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
+                {trace.slice(-5).map((item, index) => (
+                  <div key={`${item.type}-${item.at}-${index}`} className="min-w-[132px] border-l border-cyan-300/20 bg-cyan-300/[0.025] px-2 py-1.5">
+                    <p className="truncate text-[9px] text-cyan-50/75">{item.label}</p>
+                    <p className="mt-0.5 text-[7px] uppercase tracking-wider text-slate-600">{item.type}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
@@ -369,7 +431,7 @@ export function Assistant() {
                   <div className="assistant-response w-full rounded-2xl rounded-bl-sm border border-sky-300/12 bg-[#0b1020]/85 px-4 py-3 shadow-[0_14px_45px_rgba(0,0,0,0.18)]">
                     <div className="mb-2 flex items-center justify-between gap-2 border-b border-sky-300/10 pb-2">
                       <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-200/75">
-                        <Sparkles size={12} /> Universe response
+                        <Sparkles size={12} /> {message.agent ? `${AGENT_PROFILES[message.agent as AgentId]?.name ?? "Universe"} response` : "Universe response"}
                       </span>
                       <Badge mode={message.mode ?? "demo"} />
                     </div>

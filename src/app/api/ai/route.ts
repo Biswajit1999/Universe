@@ -8,10 +8,10 @@
  */
 import { NextResponse } from "next/server";
 import { UNIVERSE_SYSTEM_PROMPT } from "@/lib/ai/prompts";
+import { generateGemini } from "@/lib/ai/gemini";
 
 export async function POST(request: Request) {
   const apiKey = process.env.GEMINI_API_KEY; // ← insert your key in .env.local
-  const model = process.env.GEMINI_MODEL || "gemini-3.5-flash";
 
   let body: { prompt?: string; history?: { role: string; content: string }[] };
   try {
@@ -29,43 +29,14 @@ export async function POST(request: Request) {
   }
 
   try {
-    const contents = [
-      ...(body.history ?? []).map((m) => ({
-        role: m.role === "assistant" ? "model" : "user",
-        parts: [{ text: m.content }],
-      })),
-      { role: "user", parts: [{ text: body.prompt }] },
-    ];
-
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: UNIVERSE_SYSTEM_PROMPT }] },
-          contents,
-          generationConfig: { temperature: 0.6, maxOutputTokens: 2048 },
-        }),
-      },
-    );
-
-    if (!res.ok) {
-      const detail = await res.text();
-      return NextResponse.json(
-        { error: `Gemini API error (${res.status})`, detail: detail.slice(0, 300) },
-        { status: 502 },
-      );
-    }
-
-    const data = await res.json();
-    const text: string | undefined =
-      data?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text).join("");
-
-    if (!text) {
-      return NextResponse.json({ error: "Empty model response" }, { status: 502 });
-    }
-    return NextResponse.json({ mode: "live", provider: `gemini/${model}`, text });
+    const generated = await generateGemini({
+      prompt: body.prompt,
+      history: (body.history ?? []).filter((message): message is { role: "user" | "assistant"; content: string } =>
+        (message.role === "user" || message.role === "assistant") && typeof message.content === "string"),
+      systemPrompt: UNIVERSE_SYSTEM_PROMPT,
+      signal: request.signal,
+    });
+    return NextResponse.json({ mode: "live", provider: generated.provider, text: generated.text });
   } catch (err) {
     return NextResponse.json(
       { error: "Upstream request failed", detail: String(err).slice(0, 200) },
