@@ -8,6 +8,7 @@ import { useVault } from "@/lib/state/vault";
 import { downloadMarkdown } from "@/lib/utils";
 import type { VaultItemType } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { DesktopMemory } from "@/components/vault/DesktopMemory";
 
 const TYPES: { id: VaultItemType | "all"; label: string }[] = [
   { id: "all", label: "All" },
@@ -31,6 +32,8 @@ export function Vault() {
 
   return (
     <div className="space-y-6">
+      <DesktopMemory />
+
       {/* Auth / mode banner */}
       <Panel>
         <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">

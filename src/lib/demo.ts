@@ -1,6 +1,6 @@
 /**
  * Single source of truth for bundled demo datasets.
- * The JSON files live in /public/demo-data so contributors can inspect and
+ * The JSON files live in /public/demo-data so the owner can inspect and
  * extend them; importing them here bundles them for API routes and components.
  *
  * RULE: demo data is always labelled `mode: "demo"` in the payload and shown

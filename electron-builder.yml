@@ -1,0 +1,30 @@
+appId: com.biswajit.universe
+productName: UNIVERSE
+copyright: Copyright © Biswajit Jana. All rights reserved.
+asar: true
+npmRebuild: false
+buildDependenciesFromSource: false
+directories:
+  output: release
+files:
+  - electron/**/*
+  - package.json
+  - "!node_modules/**/*"
+extraResources:
+  - from: .next/standalone
+    to: universe-server
+  - from: .next/static
+    to: universe-server/.next/static
+  - from: public
+    to: universe-server/public
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  artifactName: UNIVERSE-Setup-${version}.${ext}
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true

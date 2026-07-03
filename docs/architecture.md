@@ -1,79 +1,65 @@
-# Architecture
+# Application architecture
 
-UNIVERSE is a single Next.js 15 (App Router) application. It is deliberately structured so that
-**pure logic**, **data access**, and **presentation** are separable and testable.
-
-## High-level diagram
-
-```
-┌────────────────────────────────────────────────────────────┐
-│                        Browser (PWA)                        │
-│                                                             │
-│  Providers (Settings + Vault contexts, Starfield, Shell)    │
-│    ├── Pages (app/*)  ── Components (components/*)           │
-│    └── Hey Universe assistant (global slide-over)           │
-│                    │                                        │
-│         askAI() abstraction (lib/ai/provider.ts)            │
-└────────────────────┼───────────────────────────────────────┘
-                     │  fetch
-        ┌────────────┴─────────────┐
-        │   Next.js API routes      │  (app/api/*)
-        │  ai · apod · neo ·        │
-        │  exoplanets · arxiv       │
-        └────────────┬─────────────┘
-                     │  server-side fetch (keys stay on server)
-   ┌─────────────────┼───────────────────────────────┐
-   │ Gemini   NASA   arXiv   Exoplanet Archive   …    │  external
-   └──────────────────────────────────────────────────┘
-                     │  (fallback on any failure)
-             public/demo-data/*.json  (bundled, labelled Demo)
-```
+UNIVERSE is a Next.js 15 application embedded in a security-hardened Electron desktop shell.
 
 ## Layers
 
-### 1. Pure logic — `src/lib/{simulations,templates}`
-No React, no `fetch`. Physics models (`orbitalPeriod`, `transitDepth`, `pidResponse`, …) and the
-research/writing generators are deterministic functions. This makes them trivial to unit-test and
-reuse (e.g. the same simulators power both the Simulation Lab and the Physics world).
+### Interface
 
-### 2. Data access — `src/lib/api` + `src/app/api`
-Client wrappers (`lib/api/*`) call our own API routes; the **routes** (`app/api/*`) hold the
-secret keys and talk to external services. Every route accepts `?mode=live|demo` and **always**
-degrades to bundled demo data on error or missing key. Keys never reach the browser (except the
-`NEXT_PUBLIC_FIREBASE_*` values, which are public by design).
+`src/app` and `src/components` contain the command nexus, science worlds, assistant, encrypted-memory
+console, plugin manager and Atlas approval centre. React Three Fiber supplies depth-bearing motion;
+CSS/Tailwind supplies precise instrument geometry and reduced-motion fallbacks.
 
-### 3. AI abstraction — `src/lib/ai`
-`askAI(req, { demoMode })` tries the live route first (unless Demo Mode), then falls back to the
-offline `mock` provider. Responses carry `{ mode, provider }` so the UI can label them. Swapping
-in a new LLM means editing one server route.
+### Orchestrator
 
-### 4. State — `src/lib/state`
-Two React contexts:
-- **Settings** — Demo/Live mode + theme, persisted to `localStorage`.
-- **Vault** — auth + saved items; Firestore when signed in, `localStorage` otherwise.
+`src/lib/agents` contains deterministic intent routing, specialist profiles, bounded plans, safe
+read-only tools, streamed server-sent events and the browser client. The global assistant routes to:
 
-### 5. Presentation — `src/components` + `src/app`
-Shared primitives (`Panel`, `Badge`, `Slider`, `Markdown`, `Skeleton`, `ErrorState`) keep the
-cinematic glass-panel look consistent. The `Shell` provides the responsive sidebar/drawer; the
-`Starfield` canvas renders the ambient background; the `Assistant` is mounted once globally.
+- Universe — general orchestration
+- Kepler — research strategy
+- Vega — scientific data
+- Newton — simulations
+- Muse — scientific writing
+- Atlas — local operations through the desktop permission broker
 
-## Rendering strategy
+The browser can cancel a running request. Model failure falls back to the labelled offline provider.
 
-- Most pages are **statically prerendered** (`○`) — they're fast and cacheable.
-- World detail pages use **`generateStaticParams`** (`●`).
-- API routes are **dynamic** (`ƒ`) and run on demand.
-- Interactive components are client components (`"use client"`); data-fetching cards fetch on the
-  client so the Demo/Live toggle re-fetches instantly.
+### Plugins and data
 
-## PWA
+`src/lib/plugins` defines versioned manifests with scope, risk, capabilities and tools. Encrypted
+enablement state gates Gemini, NASA, scientific calculation and Atlas surfaces. Existing `lib/api`
+wrappers and `app/api` routes preserve Demo/Live provenance labels.
 
-`app/layout.tsx` links a web manifest (`public/manifest.webmanifest`) with an SVG icon, theme
-color and `standalone` display, so UNIVERSE is installable. A service worker for offline caching
-is on the [roadmap](roadmap.md) (v2).
+### Memory
 
-## Deployment
+`src/lib/memory` provides explicit-only long-term records and lexical retrieval. The desktop server
+stores AES-256-GCM envelopes using a random key protected by Electron. Memory retrieval is off by
+default; the conversation Memory toggle is the owner action that permits selected records to enter
+model context.
 
-Any Next.js host works. For the intended stack:
-- **Firebase App Hosting** — connect the repo; it builds and serves the Next.js app, with
-  Firestore/Auth in the same project.
-- **Vercel/Netlify** — zero-config; add the same environment variables in the dashboard.
+### Desktop boundary
+
+`electron/main.cjs` owns lifecycle, local-server startup and trusted IPC. Separate modules implement
+credentials, diagnostics and Atlas tools. The preload exposes only typed methods. It never exposes
+Node.js, arbitrary filesystem paths, a shell or generic command execution.
+
+See [desktop-architecture.md](desktop-architecture.md) for the threat boundary.
+
+### Pure logic
+
+Physics models and writing/research generators remain deterministic, browser-independent functions
+with unit tests. This keeps scientific calculations reviewable and prevents the model from replacing
+known equations with opaque guesses.
+
+## Runtime modes
+
+- **Packaged desktop:** all private capabilities available; server listens on `127.0.0.1:3199`.
+- **Desktop development:** Electron UI plus Next dev server; credentials/memory/operator remain
+  packaged-runtime features unless their private environment is explicitly configured.
+- **Browser/Vercel:** science UI and labelled cloud/demo data only. Private memory and PC tools reject
+  requests because no desktop data directory or vault key exists.
+
+## Testing
+
+Vitest covers simulations, templates, Markdown normalization, agent routing/policy, Electron
+credential redaction, encrypted memory/plugin state and Atlas selection/approval boundaries.

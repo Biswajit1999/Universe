@@ -1,23 +1,27 @@
 {
   "name": "universe",
-  "version": "0.1.0",
-  "description": "UNIVERSE — The Living Scientific Operating System. An open-source, Jarvis-like research, science and knowledge platform.",
-  "private": false,
-  "license": "MIT",
+  "version": "0.5.0",
+  "description": "UNIVERSE — Biswajit's private, local-first personal intelligence system.",
+  "private": true,
+  "license": "UNLICENSED",
   "author": "Biswajit Jana",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node scripts/start-local.cjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "desktop:dev": "concurrently -k -s first \"npm run dev\" \"wait-on http://127.0.0.1:3000 && electron .\"",
+    "desktop:package": "npm run build && electron-builder",
+    "desktop:dir": "npm run build && electron-builder --dir"
   },
   "dependencies": {
     "@react-three/fiber": "^9.6.1",
     "firebase": "^11.2.0",
     "katex": "^0.17.0",
     "lucide-react": "^0.469.0",
-    "next": "^15.1.6",
+    "next": "^15.5.20",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
@@ -33,9 +37,13 @@
     "@types/react-dom": "^19.0.2",
     "@types/three": "^0.180.0",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.2.1",
+    "electron": "^31.7.7",
+    "electron-builder": "^25.1.8",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3",
-    "vitest": "^2.1.9"
+    "vitest": "^2.1.9",
+    "wait-on": "^8.0.3"
   }
 }

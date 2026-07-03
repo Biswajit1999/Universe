@@ -8,6 +8,8 @@ export interface AIMessage {
   content: string;
   /** Which provider produced it — mock answers are always labelled. */
   mode?: DataMode;
+  agent?: string;
+  requestId?: string;
 }
 
 export interface AIRequest {

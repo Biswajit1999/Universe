@@ -54,5 +54,5 @@ values, but network issues can cause a silent fallback to **Demo** data — alwa
 
 ## No warranty
 
-UNIVERSE is provided "as is" under the MIT License, without warranty of any kind. See
+UNIVERSE is private proprietary software provided "as is", without warranty of any kind. See
 [`LICENSE`](../LICENSE).

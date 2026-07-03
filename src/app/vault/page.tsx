@@ -9,7 +9,7 @@ export default function VaultPage() {
       <PageHeader
         eyebrow="Yours to keep"
         title="Personal Vault"
-        description="Save notes, ideas, generated reports, favourite datasets, simulations, AI answers and drafts. Signed in with Firebase, it syncs to Firestore; otherwise it stays in this browser (Demo Mode)."
+        description="Keep explicit encrypted memories, notes, generated reports, datasets, simulations and drafts. Long-term memory stays off until you choose what Universe may remember."
       />
       <Vault />
     </div>

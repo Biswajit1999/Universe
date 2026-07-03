@@ -1,13 +1,13 @@
 "use client";
-import { Radio, Moon, Sun, ShieldAlert, Database, Sparkles, Github, User } from "lucide-react";
+import { Radio, Moon, Sun, ShieldAlert, Sparkles, LockKeyhole, User } from "lucide-react";
 import { Panel } from "@/components/ui/Panel";
 import { Badge } from "@/components/ui/Badge";
 import { useSettings } from "@/lib/state/settings";
-import { useVault } from "@/lib/state/vault";
+import { DesktopCredentials } from "@/components/settings/DesktopCredentials";
+import { PluginManager } from "@/components/settings/PluginManager";
 
 export function Settings() {
   const { demoMode, setDemoMode, theme, toggleTheme, userName, setUserName } = useSettings();
-  const { firebaseEnabled } = useVault();
 
   return (
     <div className="space-y-6">
@@ -25,6 +25,10 @@ export function Settings() {
           aria-label="Your name"
         />
       </Panel>
+      <DesktopCredentials />
+
+      <PluginManager />
+
       {/* Data mode */}
       <Panel>
         <div className="flex items-start justify-between gap-4">
@@ -70,23 +74,6 @@ export function Settings() {
         </div>
       </Panel>
 
-      {/* Integrations status */}
-      <Panel>
-        <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold">
-          <Database size={16} className="text-accent" /> Integrations
-        </h3>
-        <ul className="space-y-2 text-sm">
-          <Row label="Firebase (Auth + Firestore)" ok={firebaseEnabled} okText="Configured" offText="Not set — Vault uses localStorage" />
-          <Row label="Gemini AI (assistant)" ok={false} okText="" offText="Set GEMINI_API_KEY for Live AI · using mock" note />
-          <Row label="NASA APOD / NEO" ok={false} okText="" offText="Set NASA_API_KEY for live · using demo" note />
-          <Row label="arXiv / Exoplanet Archive" ok offText="" okText="No key required — works in Live Mode" />
-        </ul>
-        <p className="mt-3 text-xs text-muted">
-          Integration status is inferred from environment variables. See <code>.env.example</code> and{" "}
-          <a href="https://github.com/" className="text-accent underline" target="_blank" rel="noreferrer">the README</a> for setup.
-        </p>
-      </Panel>
-
       {/* Science disclaimer */}
       <Panel>
         <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold">
@@ -114,23 +101,12 @@ export function Settings() {
           <Sparkles size={16} className="text-accent" /> About
         </h3>
         <p className="text-xs text-muted">
-          UNIVERSE — The Living Scientific Operating System · open-source MVP v0.1 · built by Biswajit Jana.
+          UNIVERSE — private personal intelligence system · owned and built by Biswajit Jana.
         </p>
-        <a href="https://github.com/" target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-2 text-xs text-accent">
-          <Github size={13} /> View source
-        </a>
+        <p className="mt-2 inline-flex items-center gap-2 text-xs text-emerald-300/75">
+          <LockKeyhole size={13} /> Proprietary · local-first
+        </p>
       </Panel>
     </div>
-  );
-}
-
-function Row({ label, ok, okText, offText, note }: { label: string; ok: boolean; okText: string; offText: string; note?: boolean }) {
-  return (
-    <li className="flex items-center justify-between gap-3 border-b border-edge pb-2 last:border-0">
-      <span className="text-ink">{label}</span>
-      <span className={`text-xs ${ok ? "text-emerald-300" : note ? "text-amber-300" : "text-muted"}`}>
-        {ok ? okText : offText}
-      </span>
-    </li>
   );
 }

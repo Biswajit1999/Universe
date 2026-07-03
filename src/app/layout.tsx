@@ -5,14 +5,15 @@ import { Providers } from "@/components/Providers";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://universe.example.com"),
-  title: "UNIVERSE — The Living Scientific Operating System",
+  title: "UNIVERSE — Personal Intelligence System",
   description:
-    "A Jarvis-like open-source research, science, productivity and knowledge platform. Explore live datasets, run simulations, generate research plans, and travel through connected knowledge worlds.",
+    "Biswajit's private, local-first scientific intelligence system with voice, agents, live data, simulations and a secure personal knowledge vault.",
   applicationName: "UNIVERSE",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "UNIVERSE" },
   authors: [{ name: "Biswajit Jana" }],
-  keywords: ["science", "research", "astronomy", "AI", "open source", "data", "simulation"],
+  keywords: ["science", "research", "astronomy", "AI", "personal assistant", "data", "simulation"],
+  robots: { index: false, follow: false, noarchive: true, nosnippet: true },
 };
 
 export const viewport: Viewport = {
