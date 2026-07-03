@@ -12,6 +12,10 @@ draft your writing, and travel through connected knowledge worlds.
 
 ### [Launch the live app →](https://universe-liart.vercel.app/command)
 
+<a href="https://universe-liart.vercel.app/command">
+  <img src="docs/assets/universe-dashboard-cover.png" alt="UNIVERSE — The Living Scientific Operating System dashboard" width="100%" />
+</a>
+
 </div>
 
 ---
