@@ -41,6 +41,100 @@ body {
   min-height: 100dvh;
 }
 
+/* WebGL scene chrome: the geometry is rendered by React Three Fiber while
+   these layers add a restrained instrument-display finish. */
+.universe-webgl-canvas {
+  position: absolute !important;
+  inset: 0;
+  opacity: 0.96;
+}
+
+.universe-scene-fallback {
+  --scene-color: #7dd3fc;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 72% 42%, color-mix(in srgb, var(--scene-color) 20%, transparent), transparent 24%),
+    radial-gradient(circle at 66% 50%, #0d1930 0, #050712 48%, transparent 72%);
+}
+
+.universe-scene-fallback.is-compact {
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--scene-color) 22%, transparent), #050712 52%);
+}
+
+.universe-scene-core {
+  position: absolute;
+  left: 70%;
+  top: 50%;
+  width: 118px;
+  height: 118px;
+  border: 1px solid color-mix(in srgb, var(--scene-color) 65%, transparent);
+  background: radial-gradient(circle at 38% 30%, color-mix(in srgb, var(--scene-color) 42%, white 5%), #07101d 62%);
+  box-shadow: 0 0 70px color-mix(in srgb, var(--scene-color) 28%, transparent), inset 0 0 30px rgba(255, 255, 255, 0.05);
+  transform: translate(-50%, -50%) rotate(22deg);
+  animation: scene-core-drift 11s ease-in-out infinite;
+  clip-path: polygon(50% 0, 92% 24%, 100% 68%, 68% 100%, 24% 91%, 0 48%, 18% 12%);
+}
+
+.is-compact .universe-scene-core {
+  left: 50%;
+  width: 96px;
+  height: 96px;
+}
+
+.universe-scene-orbit {
+  position: absolute;
+  left: 70%;
+  top: 50%;
+  width: 310px;
+  height: 118px;
+  border: 1px solid color-mix(in srgb, var(--scene-color) 42%, transparent);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotate(-14deg);
+  animation: scene-orbit 16s linear infinite;
+}
+
+.is-compact .universe-scene-orbit {
+  left: 50%;
+  width: 250px;
+  height: 92px;
+}
+
+.universe-scene-orbit.orbit-two {
+  width: 230px;
+  height: 210px;
+  border-color: color-mix(in srgb, var(--scene-color) 20%, transparent);
+  transform: translate(-50%, -50%) rotate(38deg);
+  animation-direction: reverse;
+  animation-duration: 22s;
+}
+
+.universe-scene-vignette {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 65% 45%, transparent 16%, rgba(5, 7, 18, 0.08) 48%, rgba(5, 7, 18, 0.72) 115%);
+}
+
+.universe-scene-scanline {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.14;
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent 3px, rgba(125, 211, 252, 0.08) 4px);
+  mask-image: linear-gradient(to right, transparent 8%, black 58%, transparent 100%);
+}
+
+@keyframes scene-core-drift {
+  0%, 100% { transform: translate(-50%, -50%) rotate(16deg) scale(0.96); }
+  50% { transform: translate(-50%, -54%) rotate(36deg) scale(1.04); }
+}
+
+@keyframes scene-orbit {
+  to { transform: translate(-50%, -50%) rotate(346deg); }
+}
+
 /* Glass panel primitive */
 .glass {
   background: var(--panel);
@@ -144,5 +238,10 @@ body {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+
+  .universe-scene-core,
+  .universe-scene-orbit {
+    animation: none !important;
   }
 }
