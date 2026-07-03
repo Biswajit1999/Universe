@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   MessageCircle,
+  Database,
   Mic,
   MicOff,
   Radio,
@@ -67,13 +68,18 @@ export function Assistant() {
   const [playingMessage, setPlayingMessage] = useState<number | null>(null);
   const [trace, setTrace] = useState<AgentEvent[]>([]);
   const [activeAgent, setActiveAgent] = useState<AgentId>("core");
+  const [desktopAvailable, setDesktopAvailable] = useState(false);
+  const [memoryEnabled, setMemoryEnabled] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const voiceRef = useRef<VoiceSession | null>(null);
   const speechRef = useRef<SpeechSession | null>(null);
   const requestRef = useRef<AbortController | null>(null);
 
-  useEffect(() => setVoiceAvailable(isVoiceSupported() && isSpeechSupported()), []);
+  useEffect(() => {
+    setVoiceAvailable(isVoiceSupported() && isSpeechSupported());
+    setDesktopAvailable(window.universeDesktop?.isDesktop === true);
+  }, []);
 
   const stopVoiceActivity = useCallback(() => {
     voiceRef.current?.stop();
@@ -128,7 +134,7 @@ export function Assistant() {
       let response: AIResponse & { agent?: AgentId; requestId?: string };
       try {
         response = await askOrchestrator(
-          { prompt: question, context: voiceContext, history, demoMode },
+          { prompt: question, context: voiceContext, history, demoMode, useMemory: memoryEnabled },
           {
             signal: controller.signal,
             onEvent: (event) => {
@@ -156,7 +162,7 @@ export function Assistant() {
       if (useVoice && autoSpeak) speakResponse(response.text, messageIndex);
       else setVoicePhase("idle");
     },
-    [autoSpeak, demoMode, messages, speakResponse, thinking, voiceMode],
+    [autoSpeak, demoMode, memoryEnabled, messages, speakResponse, thinking, voiceMode],
   );
 
   const beginListening = useCallback(() => {
@@ -305,6 +311,22 @@ export function Assistant() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {desktopAvailable && (
+                <button
+                  type="button"
+                  onClick={() => setMemoryEnabled((value) => !value)}
+                  aria-pressed={memoryEnabled}
+                  title="When enabled, relevant encrypted memories may be sent to the active AI provider for this conversation."
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider transition",
+                    memoryEnabled
+                      ? "border-emerald-300/35 bg-emerald-300/10 text-emerald-200"
+                      : "border-edge text-muted hover:border-cyan-300/30 hover:text-ink",
+                  )}
+                >
+                  <Database size={11} /> Memory {memoryEnabled ? "on" : "off"}
+                </button>
+              )}
               {voiceAvailable && (
                 <button
                   type="button"

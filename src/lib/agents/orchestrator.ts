@@ -6,6 +6,8 @@ import { AGENT_PROFILES } from "./profiles";
 import { buildPlan } from "./plans";
 import { routeIntent } from "./router";
 import { runReadOnlyTools } from "./tools";
+import { searchMemory } from "@/lib/memory/repository";
+import { pluginEnabled } from "@/lib/plugins/repository";
 import type { AgentEvent, OrchestratorRequest } from "./types";
 
 function event(requestId: string, type: AgentEvent["type"], label: string, detail?: string): AgentEvent {
@@ -28,7 +30,15 @@ export async function* runOrchestrator(input: OrchestratorRequest, signal?: Abor
   const plan = buildPlan(agent);
   yield { ...event(requestId, "planning", "Execution plan prepared", `${plan.length} bounded steps`), agent, plan };
 
-  const tools = await runReadOnlyTools(agent, input.prompt, signal);
+  const memory = input.useMemory ? await searchMemory(input.prompt, 4) : [];
+  const memoryTool = memory.length ? [{
+    tool: "memory.retrieve",
+    label: "Encrypted personal memory",
+    mode: "live" as const,
+    summary: memory.map((record) => `${record.title}: ${record.content.slice(0, 900)}`).join("\n"),
+    data: memory.map((record) => ({ id: record.id, title: record.title, tags: record.tags })),
+  }] : [];
+  const tools = [...memoryTool, ...await runReadOnlyTools(agent, input.prompt, signal)];
   for (const tool of tools) {
     assertActive(signal);
     yield { ...event(requestId, "tool-start", `Calling ${tool.label}`), agent, tool: { ...tool, summary: "" } };
@@ -46,7 +56,7 @@ export async function* runOrchestrator(input: OrchestratorRequest, signal?: Abor
     : "";
   const prompt = `${withContext(input.prompt, input.context)}${toolContext}`;
   let response;
-  if (!input.demoMode && process.env.GEMINI_API_KEY) {
+  if (!input.demoMode && process.env.GEMINI_API_KEY && await pluginEnabled("gemini")) {
     const generated = await generateGemini({
       prompt,
       history: input.history,

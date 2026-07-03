@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/Badge";
 import { useSettings } from "@/lib/state/settings";
 import { useVault } from "@/lib/state/vault";
 import { DesktopCredentials } from "@/components/settings/DesktopCredentials";
+import { PluginManager } from "@/components/settings/PluginManager";
 
 export function Settings() {
   const { demoMode, setDemoMode, theme, toggleTheme, userName, setUserName } = useSettings();
@@ -27,6 +28,8 @@ export function Settings() {
         />
       </Panel>
       <DesktopCredentials />
+
+      <PluginManager />
 
       {/* Data mode */}
       <Panel>

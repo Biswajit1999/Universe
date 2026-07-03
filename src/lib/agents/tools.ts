@@ -1,6 +1,7 @@
 import { demoData } from "@/lib/demo";
 import { AU, G, M_EARTH, M_SUN, WIEN_B } from "@/lib/simulations/models";
 import type { AgentId, AgentToolResult } from "./types";
+import { pluginEnabled } from "@/lib/plugins/repository";
 
 function xmlTag(xml: string, name: string): string {
   const match = xml.match(new RegExp(`<${name}[^>]*>([\\s\\S]*?)</${name}>`));
@@ -82,8 +83,8 @@ export async function runReadOnlyTools(agent: AgentId, prompt: string, signal?: 
   }];
 
   const selected: Array<Promise<AgentToolResult> | AgentToolResult> = [];
-  if (agent === "data" && /\b(apod|picture of the day|today.*space|nasa image)\b/i.test(prompt)) selected.push(nasaApod(signal));
+  if (agent === "data" && /\b(apod|picture of the day|today.*space|nasa image)\b/i.test(prompt) && await pluginEnabled("nasa")) selected.push(nasaApod(signal));
   if (agent === "data" && /\b(arxiv|latest paper|preprint)\b/i.test(prompt)) selected.push(latestArxiv(signal));
-  if (agent === "simulation" || /\b(gravitational constant|astronomical unit|solar mass|earth mass|wien)\b/i.test(prompt)) selected.push(constants());
+  if ((agent === "simulation" || /\b(gravitational constant|astronomical unit|solar mass|earth mass|wien)\b/i.test(prompt)) && await pluginEnabled("science")) selected.push(constants());
   return Promise.all(selected);
 }

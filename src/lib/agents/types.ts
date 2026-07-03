@@ -41,6 +41,8 @@ export interface OrchestratorRequest {
   context?: string;
   history?: AIMessage[];
   demoMode?: boolean;
+  /** Explicit opt-in: retrieved records may be included in a cloud model request. */
+  useMemory?: boolean;
 }
 
 export interface OrchestratorOptions {
