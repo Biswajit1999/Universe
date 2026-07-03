@@ -3,6 +3,7 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://universe.example.com"),
   title: "UNIVERSE — The Living Scientific Operating System",
   description:
     "A Jarvis-like open-source research, science, productivity and knowledge platform. Explore live datasets, run simulations, generate research plans, and travel through connected knowledge worlds.",

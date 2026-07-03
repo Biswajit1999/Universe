@@ -40,9 +40,11 @@ export function Settings() {
           </div>
           <button
             onClick={() => setDemoMode(!demoMode)}
+            role="switch"
+            aria-checked={!demoMode}
             className="relative h-7 w-12 shrink-0 rounded-full border border-edge transition"
             style={{ background: demoMode ? "rgba(125,211,252,0.2)" : "rgba(52,211,153,0.25)" }}
-            aria-label="Toggle data mode"
+            aria-label="Toggle data mode between Demo and Live"
           >
             <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-ink transition-all ${demoMode ? "left-0.5" : "left-[22px]"}`} />
           </button>

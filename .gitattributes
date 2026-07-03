@@ -1,0 +1,12 @@
+# Normalise line endings so the repo is consistent across OSes.
+# Text files are stored with LF in git; Windows checkouts still work.
+* text=auto eol=lf
+
+# Binary / generated — never touch.
+*.png binary
+*.jpg binary
+*.svg text eol=lf
+*.ico binary
+
+# Lockfiles keep LF.
+package-lock.json text eol=lf
