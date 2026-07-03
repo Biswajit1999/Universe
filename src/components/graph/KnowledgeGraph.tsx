@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { GRAPH_NODES, GRAPH_EDGES, nodeById } from "@/lib/data/graph";
 import { AskButton } from "@/components/ui/AskButton";
@@ -16,6 +16,14 @@ export function KnowledgeGraph() {
   const [selected, setSelected] = useState<string | null>(null);
   const [hover, setHover] = useState<string | null>(null);
   const node = selected ? nodeById(selected) : null;
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setSelected(null);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const connected = new Set<string>();
   if (hover) {

@@ -3,7 +3,7 @@
  * App shell: fixed sidebar on desktop, slide-in drawer on mobile, and a top
  * bar with the Demo/Live pill + theme toggle. Wraps every page's content.
  */
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, Radio, Moon, Sun } from "lucide-react";
@@ -68,6 +68,17 @@ function ThemeToggle() {
 
 export function Shell({ children }: { children: ReactNode }) {
   const [drawer, setDrawer] = useState(false);
+  const pathname = usePathname();
+
+  // Close the drawer on Escape and whenever the route changes.
+  useEffect(() => setDrawer(false), [pathname]);
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setDrawer(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <div className="flex min-h-dvh">
