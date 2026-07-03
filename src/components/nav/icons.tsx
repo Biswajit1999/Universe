@@ -1,0 +1,62 @@
+import {
+  LayoutDashboard,
+  Globe2,
+  FlaskConical,
+  Database,
+  Atom,
+  Share2,
+  Sunrise,
+  PenLine,
+  Lock,
+  Settings,
+  Telescope,
+  Sigma,
+  Dna,
+  Globe,
+  Brain,
+  Cpu,
+  Scroll,
+  Rocket,
+  User,
+  Lightbulb,
+  Satellite,
+  Sparkles,
+  FileText,
+  Mail,
+  Map,
+  type LucideIcon,
+} from "lucide-react";
+
+/** Central icon registry so data files can reference icons by string key. */
+export const ICONS: Record<string, LucideIcon> = {
+  layoutDashboard: LayoutDashboard,
+  globe2: Globe2,
+  flaskConical: FlaskConical,
+  database: Database,
+  atom: Atom,
+  share2: Share2,
+  sunrise: Sunrise,
+  penLine: PenLine,
+  lock: Lock,
+  settings: Settings,
+  telescope: Telescope,
+  sigma: Sigma,
+  dna: Dna,
+  globe: Globe,
+  brain: Brain,
+  cpu: Cpu,
+  scroll: Scroll,
+  rocket: Rocket,
+  user: User,
+  lightbulb: Lightbulb,
+  satellite: Satellite,
+  sparkles: Sparkles,
+  fileText: FileText,
+  mail: Mail,
+  map: Map,
+};
+
+export function Icon({ name, size = 18, className }: { name: string; size?: number; className?: string }) {
+  const Cmp = ICONS[name] ?? Sparkles;
+  return <Cmp size={size} className={className} />;
+}

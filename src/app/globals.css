@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root,
+[data-theme="dark"] {
+  --bg: #05060f;
+  --panel: rgba(18, 22, 40, 0.55);
+  --edge: rgba(125, 211, 252, 0.14);
+  --ink: #e8ecf8;
+  --muted: #8a93b2;
+  --accent: #7dd3fc;
+  --accent2: #c4b5fd;
+}
+
+[data-theme="light"] {
+  --bg: #eef1fb;
+  --panel: rgba(255, 255, 255, 0.72);
+  --edge: rgba(30, 41, 90, 0.12);
+  --ink: #0f1836;
+  --muted: #5a6689;
+  --accent: #2563eb;
+  --accent2: #7c3aed;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+/* Glass panel primitive */
+.glass {
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 1rem;
+}
+
+.glass-strong {
+  background: color-mix(in srgb, var(--panel) 88%, var(--bg));
+  border: 1px solid var(--edge);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Subtle accent gradient text */
+.text-gradient {
+  background: linear-gradient(100deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Focus ring consistent with the theme */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Thin scrollbars in panels */
+.scroll-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: var(--edge);
+  border-radius: 8px;
+}
+
+/* Markdown-ish content spacing used by assistant + generators */
+.prose-universe p {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
+.prose-universe h1,
+.prose-universe h2,
+.prose-universe h3 {
+  margin: 0.9rem 0 0.4rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.prose-universe ul,
+.prose-universe ol {
+  margin: 0.4rem 0;
+  padding-left: 1.2rem;
+}
+.prose-universe li {
+  margin: 0.2rem 0;
+}
+.prose-universe code {
+  font-family: var(--font-mono, monospace);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.3rem;
+  font-size: 0.85em;
+}
+.prose-universe pre {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--edge);
+  border-radius: 0.6rem;
+  padding: 0.8rem;
+  overflow-x: auto;
+  margin: 0.6rem 0;
+}
+.prose-universe pre code {
+  background: none;
+  padding: 0;
+}
+.prose-universe table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.6rem 0;
+  font-size: 0.9em;
+}
+.prose-universe th,
+.prose-universe td {
+  border: 1px solid var(--edge);
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+}
+.prose-universe a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

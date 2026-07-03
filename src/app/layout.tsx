@@ -1,0 +1,31 @@
+import type { Metadata, Viewport } from "next";
+import "./globals.css";
+import { Providers } from "@/components/Providers";
+
+export const metadata: Metadata = {
+  title: "UNIVERSE — The Living Scientific Operating System",
+  description:
+    "A Jarvis-like open-source research, science, productivity and knowledge platform. Explore live datasets, run simulations, generate research plans, and travel through connected knowledge worlds.",
+  applicationName: "UNIVERSE",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "UNIVERSE" },
+  authors: [{ name: "Biswajit Jana" }],
+  keywords: ["science", "research", "astronomy", "AI", "open source", "data", "simulation"],
+};
+
+export const viewport: Viewport = {
+  themeColor: "#05060f",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}

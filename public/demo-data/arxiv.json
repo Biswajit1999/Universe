@@ -1,0 +1,11 @@
+{
+  "mode": "demo",
+  "source": "Representative sample shaped like the arXiv Atom API (demo entries)",
+  "papers": [
+    { "id": "2606.01234", "title": "Atmospheric characterisation of temperate sub-Neptunes with JWST transmission spectroscopy", "authors": ["A. Sharma", "L. Chen", "M. Okafor"], "category": "astro-ph.EP", "published": "2026-06-28", "summary": "We present a homogeneous re-analysis of JWST NIRSpec transmission spectra for six temperate sub-Neptunes, constraining metallicity and aerosol coverage with a hierarchical retrieval framework." },
+    { "id": "2606.04567", "title": "Self-calibrating photometric pipelines for small-aperture transit surveys", "authors": ["R. Kovács", "T. Yamada"], "category": "astro-ph.IM", "published": "2026-06-27", "summary": "A fully self-calibrating differential photometry pipeline that models systematics jointly across the field, improving transit depth precision by 30% for ground-based small telescopes." },
+    { "id": "2606.07890", "title": "Emergent world models in sparse mixture-of-experts transformers", "authors": ["J. Park", "S. Ali", "D. Novak"], "category": "cs.LG", "published": "2026-06-27", "summary": "We probe sparse MoE language models for internal spatial and physical representations and find expert-specialised world-model circuits that emerge at scale." },
+    { "id": "2606.02345", "title": "Gaia DR4 kinematics of the Radcliffe Wave: evidence for a damped oscillation", "authors": ["E. Martins", "K. Osei"], "category": "astro-ph.GA", "published": "2026-06-26", "summary": "Using Gaia DR4 proper motions of young stellar clusters, we measure the vertical oscillation of the Radcliffe Wave and estimate its damping timescale." },
+    { "id": "2606.05678", "title": "PID-free thermal control of compact spectrographs using model-predictive learning", "authors": ["N. Fischer", "P. Iyer"], "category": "astro-ph.IM", "published": "2026-06-25", "summary": "A learned model-predictive controller stabilises spectrograph temperature drift to sub-millikelvin levels, outperforming tuned PID baselines in radial-velocity stability." }
+  ]
+}

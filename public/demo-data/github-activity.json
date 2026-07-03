@@ -1,0 +1,11 @@
+{
+  "mode": "demo",
+  "source": "Placeholder shaped like the GitHub Events API (demo values)",
+  "username": "biswajitjana",
+  "events": [
+    { "type": "PushEvent", "repo": "universe", "detail": "3 commits — simulation lab: add transit depth calculator", "when": "2h ago" },
+    { "type": "PushEvent", "repo": "exoplanet-pipeline", "detail": "1 commit — fix detrending window edge case", "when": "yesterday" },
+    { "type": "CreateEvent", "repo": "spectrograph-thermal-model", "detail": "created branch feature/mpc-controller", "when": "2 days ago" },
+    { "type": "IssuesEvent", "repo": "universe", "detail": "opened #12 — Gaia TAP live wrapper", "when": "3 days ago" }
+  ]
+}

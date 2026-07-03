@@ -1,0 +1,9 @@
+{
+  "mode": "demo",
+  "title": "Pillars of Creation (Eagle Nebula, M16)",
+  "date": "2026-07-01",
+  "explanation": "Towering columns of cold interstellar gas and dust in the Eagle Nebula, about 6,500 light-years away, sculpted by radiation from nearby young, hot stars. Inside these pillars, new stars are being born. This is bundled demo data — add a free NASA_API_KEY to .env.local to see today's real Astronomy Picture of the Day.",
+  "url": "https://apod.nasa.gov/apod/image/2210/StarPillars_Webb_960.jpg",
+  "media_type": "image",
+  "copyright": "NASA, ESA, CSA, STScI (demo placeholder)"
+}

@@ -1,0 +1,13 @@
+{
+  "mode": "demo",
+  "source": "Representative values shaped like NOAA SWPC products (demo values)",
+  "updated": "2026-07-01T18:00:00Z",
+  "kpIndex": 3.7,
+  "kpLabel": "Unsettled",
+  "solarWindSpeedKps": 452,
+  "solarWindDensity": 6.2,
+  "xrayFluxClass": "C2.1",
+  "sunspotNumber": 118,
+  "auroraChance": "Moderate at high latitudes",
+  "note": "Demo snapshot. Connect NOAA SWPC (no key required) in a future release for live values."
+}

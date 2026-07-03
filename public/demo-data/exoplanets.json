@@ -1,0 +1,18 @@
+{
+  "mode": "demo",
+  "source": "Curated subset of the NASA Exoplanet Archive (real published values, static snapshot)",
+  "planets": [
+    { "name": "TRAPPIST-1e", "hostStar": "TRAPPIST-1", "method": "Transit", "discoveryYear": 2017, "orbitalPeriodDays": 6.1, "radiusEarth": 0.92, "massEarth": 0.69, "eqTempK": 250, "distanceLy": 40.7, "facility": "TRAPPIST" },
+    { "name": "Kepler-186f", "hostStar": "Kepler-186", "method": "Transit", "discoveryYear": 2014, "orbitalPeriodDays": 129.9, "radiusEarth": 1.17, "massEarth": 1.4, "eqTempK": 188, "distanceLy": 579, "facility": "Kepler" },
+    { "name": "Proxima Centauri b", "hostStar": "Proxima Centauri", "method": "Radial Velocity", "discoveryYear": 2016, "orbitalPeriodDays": 11.2, "radiusEarth": 1.07, "massEarth": 1.27, "eqTempK": 234, "distanceLy": 4.2, "facility": "ESO 3.6m" },
+    { "name": "HD 209458 b", "hostStar": "HD 209458", "method": "Transit", "discoveryYear": 1999, "orbitalPeriodDays": 3.5, "radiusEarth": 15.2, "massEarth": 219, "eqTempK": 1449, "distanceLy": 157, "facility": "Ground survey" },
+    { "name": "51 Pegasi b", "hostStar": "51 Pegasi", "method": "Radial Velocity", "discoveryYear": 1995, "orbitalPeriodDays": 4.2, "radiusEarth": 21.4, "massEarth": 146, "eqTempK": 1260, "distanceLy": 50.6, "facility": "OHP 1.93m" },
+    { "name": "K2-18b", "hostStar": "K2-18", "method": "Transit", "discoveryYear": 2015, "orbitalPeriodDays": 32.9, "radiusEarth": 2.61, "massEarth": 8.63, "eqTempK": 255, "distanceLy": 124, "facility": "K2" },
+    { "name": "TOI-700 d", "hostStar": "TOI-700", "method": "Transit", "discoveryYear": 2020, "orbitalPeriodDays": 37.4, "radiusEarth": 1.14, "massEarth": 1.72, "eqTempK": 246, "distanceLy": 101, "facility": "TESS" },
+    { "name": "WASP-96 b", "hostStar": "WASP-96", "method": "Transit", "discoveryYear": 2014, "orbitalPeriodDays": 3.4, "radiusEarth": 13.4, "massEarth": 152, "eqTempK": 1285, "distanceLy": 1150, "facility": "WASP" },
+    { "name": "GJ 1214 b", "hostStar": "GJ 1214", "method": "Transit", "discoveryYear": 2009, "orbitalPeriodDays": 1.6, "radiusEarth": 2.74, "massEarth": 8.17, "eqTempK": 596, "distanceLy": 48, "facility": "MEarth" },
+    { "name": "55 Cancri e", "hostStar": "55 Cancri", "method": "Radial Velocity", "discoveryYear": 2004, "orbitalPeriodDays": 0.74, "radiusEarth": 1.88, "massEarth": 7.99, "eqTempK": 1958, "distanceLy": 41, "facility": "HET" },
+    { "name": "Kepler-452b", "hostStar": "Kepler-452", "method": "Transit", "discoveryYear": 2015, "orbitalPeriodDays": 384.8, "radiusEarth": 1.63, "massEarth": 3.29, "eqTempK": 265, "distanceLy": 1402, "facility": "Kepler" },
+    { "name": "LHS 1140 b", "hostStar": "LHS 1140", "method": "Transit", "discoveryYear": 2017, "orbitalPeriodDays": 24.7, "radiusEarth": 1.73, "massEarth": 5.6, "eqTempK": 226, "distanceLy": 49, "facility": "MEarth" }
+  ]
+}
