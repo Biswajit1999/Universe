@@ -90,6 +90,44 @@ export function pidResponse(opts: {
 }
 
 /**
+ * SIR epidemic model (Susceptible–Infected–Recovered), integrated with a
+ * simple forward-Euler step. Returns fractions of the population over time.
+ * R0 = beta / gamma is the basic reproduction number.
+ */
+export function sirModel(opts: {
+  r0: number; // basic reproduction number
+  infectiousDays: number; // 1/gamma
+  initialInfectedPct?: number;
+  days?: number;
+}): { day: number; S: number; I: number; R: number }[] {
+  const { r0, infectiousDays, initialInfectedPct = 0.1, days = 160 } = opts;
+  const gamma = 1 / infectiousDays;
+  const beta = r0 * gamma;
+  let S = 1 - initialInfectedPct / 100;
+  let I = initialInfectedPct / 100;
+  let R = 0;
+  const out: { day: number; S: number; I: number; R: number }[] = [];
+  const dt = 0.5;
+  for (let t = 0; t <= days; t += dt) {
+    if (t % 1 === 0) {
+      out.push({
+        day: t,
+        S: Number((S * 100).toFixed(2)),
+        I: Number((I * 100).toFixed(2)),
+        R: Number((R * 100).toFixed(2)),
+      });
+    }
+    const dS = -beta * S * I;
+    const dI = beta * S * I - gamma * I;
+    const dR = gamma * I;
+    S += dS * dt;
+    I += dI * dt;
+    R += dR * dt;
+  }
+  return out;
+}
+
+/**
  * Newton's law of cooling/heating: T(t) = T_env + (T0 - T_env) e^(-t/tau).
  * Models e.g. telescope temperature drift after a setpoint change.
  */

@@ -6,8 +6,9 @@
  * labelled offline mock) and can save any answer to the Vault.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Sparkles, X, Send, Save, Radio } from "lucide-react";
+import { Sparkles, X, Send, Save, Radio, Mic, MicOff } from "lucide-react";
 import { askAI } from "@/lib/ai/provider";
+import { isVoiceSupported, startVoice, type VoiceSession } from "@/lib/voice";
 import { useSettings } from "@/lib/state/settings";
 import { useVault } from "@/lib/state/vault";
 import { Badge } from "@/components/ui/Badge";
@@ -32,6 +33,29 @@ export function Assistant() {
   const [thinking, setThinking] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [listening, setListening] = useState(false);
+  const [voiceOk, setVoiceOk] = useState(false);
+  const voiceRef = useRef<VoiceSession | null>(null);
+
+  useEffect(() => setVoiceOk(isVoiceSupported()), []);
+
+  const toggleVoice = useCallback(() => {
+    if (listening) {
+      voiceRef.current?.stop();
+      setListening(false);
+      return;
+    }
+    const session = startVoice({
+      onText: (text) => setInput((prev) => (prev ? `${prev} ${text}` : text)),
+      onEnd: () => setListening(false),
+      onError: () => setListening(false),
+    });
+    if (session) {
+      voiceRef.current = session;
+      setListening(true);
+      inputRef.current?.focus();
+    }
+  }, [listening]);
 
   const send = useCallback(
     async (text: string, context?: string) => {
@@ -64,6 +88,21 @@ export function Assistant() {
     return () => window.removeEventListener("universe:ask", onAsk);
   }, [send]);
 
+  // Global shortcuts: Cmd/Ctrl+K opens the assistant, Escape closes it.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setOpen(true);
+        setTimeout(() => inputRef.current?.focus(), 120);
+      } else if (e.key === "Escape") {
+        setOpen(false);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, thinking]);
@@ -81,6 +120,7 @@ export function Assistant() {
           <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent" />
         </span>
         Hey Universe
+        <kbd className="ml-1 hidden rounded border border-edge px-1.5 py-0.5 text-[10px] text-muted sm:inline">⌘K</kbd>
       </button>
 
       {/* Slide-over panel */}
@@ -200,6 +240,21 @@ export function Assistant() {
             className="border-t border-edge p-3"
           >
             <div className="flex items-end gap-2">
+              {voiceOk && (
+                <button
+                  type="button"
+                  onClick={toggleVoice}
+                  aria-label={listening ? "Stop listening" : "Speak to Universe"}
+                  title={listening ? "Listening… click to stop" : "Speak to Universe"}
+                  className={`rounded-xl border p-2.5 transition ${
+                    listening
+                      ? "animate-pulse border-red-400/50 bg-red-400/15 text-red-300"
+                      : "border-edge text-muted hover:text-ink"
+                  }`}
+                >
+                  {listening ? <MicOff size={18} /> : <Mic size={18} />}
+                </button>
+              )}
               <textarea
                 ref={inputRef}
                 value={input}
@@ -211,7 +266,7 @@ export function Assistant() {
                   }
                 }}
                 rows={1}
-                placeholder="Ask Universe…"
+                placeholder={listening ? "Listening…" : "Ask Universe…"}
                 className="scroll-thin max-h-32 flex-1 resize-none rounded-xl border border-edge bg-white/5 px-3 py-2.5 text-sm text-ink placeholder:text-muted focus:border-accent/50"
               />
               <button

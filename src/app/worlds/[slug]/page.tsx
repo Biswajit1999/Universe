@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
-import { WORLDS, getWorld, DEEP_WORLDS } from "@/lib/data/worlds";
+import { WORLDS, getWorld, DEEP_WORLDS, worldHasInteractive } from "@/lib/data/worlds";
 import { WorldOverview } from "@/components/worlds/WorldOverview";
+import { GenericWorldModules } from "@/components/worlds/GenericWorldModules";
 
 /** Generic world page. Deep worlds (astronomy/physics/mathematics/ai) have
  *  their own static routes which take precedence over this dynamic one, so we
@@ -19,5 +20,10 @@ export default async function WorldPage({ params }: { params: Promise<{ slug: st
   const { slug } = await params;
   const world = getWorld(slug);
   if (!world) notFound();
-  return <WorldOverview world={world} />;
+  return (
+    <WorldOverview
+      world={world}
+      interactive={worldHasInteractive(slug) ? <GenericWorldModules slug={slug} /> : undefined}
+    />
+  );
 }

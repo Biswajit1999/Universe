@@ -1,16 +1,30 @@
 "use client";
-import { Radio, Moon, Sun, ShieldAlert, Database, Sparkles, Github } from "lucide-react";
+import { Radio, Moon, Sun, ShieldAlert, Database, Sparkles, Github, User } from "lucide-react";
 import { Panel } from "@/components/ui/Panel";
 import { Badge } from "@/components/ui/Badge";
 import { useSettings } from "@/lib/state/settings";
 import { useVault } from "@/lib/state/vault";
 
 export function Settings() {
-  const { demoMode, setDemoMode, theme, toggleTheme } = useSettings();
+  const { demoMode, setDemoMode, theme, toggleTheme, userName, setUserName } = useSettings();
   const { firebaseEnabled } = useVault();
 
   return (
     <div className="space-y-6">
+      {/* Identity */}
+      <Panel>
+        <h3 className="flex items-center gap-2 text-sm font-semibold">
+          <User size={16} className="text-accent" /> Your name
+        </h3>
+        <p className="mt-1 text-xs text-muted">Used in the Command Center greeting and generated writing.</p>
+        <input
+          defaultValue={userName}
+          onBlur={(e) => setUserName(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && setUserName((e.target as HTMLInputElement).value)}
+          className="mt-3 w-full max-w-xs rounded-lg border border-edge bg-white/5 px-3 py-2 text-sm text-ink"
+          aria-label="Your name"
+        />
+      </Panel>
       {/* Data mode */}
       <Panel>
         <div className="flex items-start justify-between gap-4">

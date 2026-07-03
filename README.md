@@ -35,7 +35,7 @@ live LLM the moment you add keys. Every dataset and result is honestly labelled:
 | 5 | **Physics** | Gravity, orbits, PID, thermal drift, blackbody, black-hole explainer. |
 | 6 | **Mathematics** | Live Mandelbrot, equation plotter, rotating tesseract, probability sim. |
 | 7 | **AI** | Neural-net visualiser, embedding space, prompt lab, safety notes. |
-| 8 | **Simulation Lab** | Seven transparent physics calculators for "what if?" scenarios. |
+| 8 | **Simulation Lab** | Eight transparent physics calculators (incl. SIR epidemic) for "what if?" scenarios. |
 | 9 | **Research Copilot** | Topic → full research plan (question, data, methods, repo, README, abstract, LinkedIn) + Markdown export. |
 | 10 | **Data Explorer** | 13 data sources with status, example queries and docs. |
 | 11 | **Knowledge Graph** | Interactive, clickable map of how the fields connect. |
@@ -56,9 +56,18 @@ npm run dev
 
 # 3. Production build
 npm run build && npm start
+
+# 4. Run the test suite (pure physics models + generators)
+npm test
 ```
 
 That's it. With no `.env.local`, UNIVERSE runs fully in **Demo Mode**.
+
+### Nice touches
+- **⌘K / Ctrl+K** opens the assistant from anywhere; **Esc** closes it.
+- **🎤 Voice input** — the assistant has a mic button where the Web Speech API is available.
+- **Installable PWA** with an offline service worker (production builds).
+- **22 unit tests** cover every simulator and generator (`npm test`).
 
 ## Going live (optional keys)
 

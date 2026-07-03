@@ -22,6 +22,7 @@ import {
   signalToNoise,
   pidResponse,
   exponentialCooling,
+  sirModel,
   M_SUN,
   M_EARTH,
   AU,
@@ -94,6 +95,23 @@ function compute(sim: SimDef, v: Record<string, number>): Computed {
         primary: [{ label: "Overshoot", value: `${formatNumber(overshoot, 1)}%` }],
         chart: { data: series as unknown as Record<string, number>[], lines: [{ key: "y", color: "var(--accent)" }, { key: "setpoint", color: "var(--accent2)" }], xKey: "t" },
         summary: `PID(Kp=${v.kp}, Ki=${v.ki}, Kd=${v.kd}) reaches the setpoint with ${formatNumber(overshoot, 1)}% overshoot.`,
+      };
+    }
+    case "sir": {
+      const series = sirModel({ r0: v.r0, infectiousDays: v.infectiousDays, initialInfectedPct: v.initialInfectedPct });
+      const peak = series.reduce((m, p) => (p.I > m.I ? p : m), series[0]);
+      return {
+        primary: [{ label: "Peak infected", value: `${formatNumber(peak.I, 1)}% · day ${peak.day}` }],
+        chart: {
+          data: series as unknown as Record<string, number>[],
+          lines: [
+            { key: "S", color: "var(--accent)" },
+            { key: "I", color: "#f87171" },
+            { key: "R", color: "#34d399" },
+          ],
+          xKey: "day",
+        },
+        summary: `With R₀=${v.r0} and a ${v.infectiousDays}-day infectious period, infections peak at ${formatNumber(peak.I, 1)}% around day ${peak.day}.`,
       };
     }
     case "cooling": {

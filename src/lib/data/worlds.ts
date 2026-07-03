@@ -238,3 +238,16 @@ export const DEEP_WORLDS = new Set(["astronomy", "physics", "mathematics", "ai"]
 export function getWorld(slug: string): WorldDef | undefined {
   return WORLDS.find((w) => w.slug === slug);
 }
+
+/** Which registry simulators back each generic (non-deep) world's interactive
+ *  modules. Kept here (server-safe) so both the page and the client component
+ *  can read it. */
+export const WORLD_SIMS: Record<string, string[]> = {
+  biology: ["sir"],
+  engineering: ["pid", "snr", "cooling"],
+};
+
+/** Whether a generic world has interactive modules to render. */
+export function worldHasInteractive(slug: string): boolean {
+  return slug === "personal" || slug in WORLD_SIMS;
+}

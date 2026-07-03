@@ -7,11 +7,16 @@ trajectory — contributions against any item are welcome.
 
 - 15 pages, responsive shell with mobile drawer, dark/light theme.
 - "Hey Universe" assistant with live (Gemini) + labelled offline mock.
+- **Voice input** (Web Speech API) and **⌘K/Ctrl+K** global shortcut.
 - Live-ready wrappers: NASA APOD, NEO, Exoplanet Archive, arXiv.
-- 7 simulators (orbital, gravity, blackbody, transit, SNR, PID, thermal).
-- 4 deep worlds with interactive modules (astronomy, physics, mathematics, AI).
+- 8 simulators (orbital, gravity, blackbody, transit, SNR, PID, thermal, SIR).
+- 4 deep worlds with interactive modules (astronomy, physics, mathematics, AI);
+  Biology + Engineering + Personal worlds also carry working interactive modules.
 - Research Copilot + Writing Studio template engines with Markdown export.
 - Interactive Knowledge Graph, Daily Briefing, Personal Vault (Firestore + local).
+- Editable identity, route-level error boundary, robots + sitemap.
+- Installable PWA with an offline service worker.
+- **22 unit tests** over the pure models and generators (`npm test`).
 - Honest data labelling throughout; full Demo Mode with zero keys.
 
 ## v0.2 — Live data depth
@@ -25,9 +30,11 @@ trajectory — contributions against any item are welcome.
 
 ## v0.3 — Voice & PWA
 
-- [ ] Real "Hey Universe" **voice** input (Web Speech API) + optional TTS replies.
-- [ ] **Service worker** for offline caching of demo data and shell.
-- [ ] Installable app polish (icons at all sizes, splash screens).
+- [x] Real "Hey Universe" **voice** input (Web Speech API).
+- [x] **Service worker** for offline caching of demo data and shell.
+- [ ] Optional **TTS** replies (assistant reads answers aloud).
+- [ ] "Hey Universe" **wake word** (always-listening, opt-in).
+- [ ] Installable app polish (raster icons at all sizes, splash screens).
 
 ## v0.4 — Deeper science
 

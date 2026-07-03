@@ -90,6 +90,18 @@ export const SIMULATORS: SimDef[] = [
     ],
   },
   {
+    id: "sir",
+    name: "Epidemic (SIR)",
+    question: "What if a disease spreads faster — when does the outbreak peak?",
+    explain: "The SIR model splits a population into Susceptible, Infected and Recovered. R₀ = β/γ is the reproduction number; below 1 the outbreak fizzles, above 1 it grows until susceptibles run out.",
+    chart: true,
+    fields: [
+      { key: "r0", label: "R₀ (reproduction number)", unit: "", default: 2.5, min: 0.3, max: 8, step: 0.1 },
+      { key: "infectiousDays", label: "Infectious period", unit: "days", default: 7, min: 1, max: 30, step: 1 },
+      { key: "initialInfectedPct", label: "Initial infected", unit: "%", default: 0.1, min: 0.01, max: 5, step: 0.01 },
+    ],
+  },
+  {
     id: "cooling",
     name: "Thermal Drift",
     question: "What if a spectrograph's temperature setpoint changes — how long to stabilise?",

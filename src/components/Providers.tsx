@@ -5,6 +5,7 @@ import { VaultProvider } from "@/lib/state/vault";
 import { Assistant } from "@/components/assistant/Assistant";
 import { Starfield } from "@/components/Starfield";
 import { Shell } from "@/components/nav/Shell";
+import { ServiceWorker } from "@/components/ServiceWorker";
 
 /** Client provider tree wrapping the whole app. */
 export function Providers({ children }: { children: ReactNode }) {
@@ -14,6 +15,7 @@ export function Providers({ children }: { children: ReactNode }) {
         <Starfield />
         <Shell>{children}</Shell>
         <Assistant />
+        <ServiceWorker />
       </VaultProvider>
     </SettingsProvider>
   );
