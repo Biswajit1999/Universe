@@ -5,4 +5,12 @@ const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("universeDesktop", Object.freeze({
   isDesktop: true,
   getInfo: () => ipcRenderer.invoke("universe:desktop-info"),
+  secrets: Object.freeze({
+    list: () => ipcRenderer.invoke("universe:secret-list"),
+    set: (name, value) => ipcRenderer.invoke("universe:secret-set", { name, value }),
+    remove: (name) => ipcRenderer.invoke("universe:secret-remove", name),
+  }),
+  diagnostics: Object.freeze({
+    recent: () => ipcRenderer.invoke("universe:diagnostics-recent"),
+  }),
 }));

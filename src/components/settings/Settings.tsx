@@ -4,6 +4,7 @@ import { Panel } from "@/components/ui/Panel";
 import { Badge } from "@/components/ui/Badge";
 import { useSettings } from "@/lib/state/settings";
 import { useVault } from "@/lib/state/vault";
+import { DesktopCredentials } from "@/components/settings/DesktopCredentials";
 
 export function Settings() {
   const { demoMode, setDemoMode, theme, toggleTheme, userName, setUserName } = useSettings();
@@ -25,6 +26,8 @@ export function Settings() {
           aria-label="Your name"
         />
       </Panel>
+      <DesktopCredentials />
+
       {/* Data mode */}
       <Panel>
         <div className="flex items-start justify-between gap-4">
