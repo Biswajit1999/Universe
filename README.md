@@ -8,7 +8,9 @@
 Say _"Hey Universe"_ and explore live datasets, run simulations, generate research plans,
 draft your writing, and travel through connected knowledge worlds.
 
-`Next.js 15` · `TypeScript` · `Tailwind` · `Firebase` · `Recharts` · `PWA-ready`
+`Next.js 15` · `TypeScript` · `Tailwind` · `Three.js` · `React Three Fiber` · `Firebase` · `PWA-ready`
+
+### [Launch the live app →](https://universe-liart.vercel.app/command)
 
 </div>
 
@@ -28,7 +30,7 @@ live LLM the moment you add keys. Every dataset and result is honestly labelled:
 
 | # | Area | What it does |
 |---|------|--------------|
-| 1 | **Command Center** | Time-aware greeting, universal command bar, quick commands, live status cards (APOD, space weather, arXiv, GitHub, notes). |
+| 1 | **Command Center** | Interactive 3D orbital interface, time-aware greeting, universal command bar, quick commands, and live status cards. |
 | 2 | **Hey Universe** | Global AI assistant — explains concepts, drafts docs, plans studies, reasons about "what ifs". Live (Gemini) or labelled offline mock. |
 | 3 | **Science Worlds** | Ten interconnected domains; four with deep interactive modules. |
 | 4 | **Astronomy** | Exoplanet Explorer (real snapshot + live TAP), NEO feed (NASA), synthetic TESS light curves. |
@@ -64,6 +66,7 @@ npm test
 That's it. With no `.env.local`, UNIVERSE runs fully in **Demo Mode**.
 
 ### Nice touches
+- **Interactive WebGL scenes** — orbital command center and color-coded spatial models for every Science World.
 - **⌘K / Ctrl+K** opens the assistant from anywhere; **Esc** closes it.
 - **🎤 Voice input** — the assistant has a mic button where the Web Speech API is available.
 - **Installable PWA** with an offline service worker (production builds).
@@ -87,6 +90,17 @@ cp .env.example .env.local
 
 Toggle **Demo ⇄ Live** anytime from the top bar or **Settings**. Missing a key? UNIVERSE
 falls back to labelled demo data instead of failing.
+
+### Add API keys to the Vercel deployment
+
+1. Open the **universe** project in Vercel.
+2. Go to **Settings → Environment Variables**.
+3. Add each variable from [`.env.example`](.env.example) separately. Select **Production**, **Preview**, and **Development** when you want the same value in every environment.
+4. At minimum, add `NASA_API_KEY`, `GEMINI_API_KEY`, and `NEXT_PUBLIC_SITE_URL=https://universe-liart.vercel.app`.
+5. For Firebase sign-in and cloud vault storage, also add all six `NEXT_PUBLIC_FIREBASE_*` values listed in `.env.example`.
+6. Open **Deployments**, select the latest deployment, and choose **Redeploy** so the new variables are included.
+
+> Never commit real API keys to this repository. `NASA_API_KEY` and `GEMINI_API_KEY` are server-only secrets; only Firebase's web configuration uses the `NEXT_PUBLIC_` prefix.
 
 ## Firebase setup (for the Vault)
 
