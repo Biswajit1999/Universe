@@ -13,4 +13,13 @@ contextBridge.exposeInMainWorld("universeDesktop", Object.freeze({
   diagnostics: Object.freeze({
     recent: () => ipcRenderer.invoke("universe:diagnostics-recent"),
   }),
+  operator: Object.freeze({
+    status: () => ipcRenderer.invoke("universe:operator-status"),
+    setEnabled: (enabled) => ipcRenderer.invoke("universe:operator-enable", enabled),
+    pickTextFile: () => ipcRenderer.invoke("universe:operator-pick-text"),
+    readTextFile: (token) => ipcRenderer.invoke("universe:operator-read-text", token),
+    writeTextFile: (token, content) => ipcRenderer.invoke("universe:operator-write-text", { token, content }),
+    applications: () => ipcRenderer.invoke("universe:operator-apps"),
+    launchApplication: (id) => ipcRenderer.invoke("universe:operator-launch", id),
+  }),
 }));

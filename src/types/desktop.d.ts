@@ -27,5 +27,14 @@ interface Window {
     diagnostics: {
       recent: () => Promise<Array<{ at: string; event: string; detail: unknown }>>;
     };
+    operator: {
+      status: () => Promise<{ enabled: boolean; updatedAt: number }>;
+      setEnabled: (enabled: boolean) => Promise<{ enabled: boolean; changed: boolean; updatedAt?: number }>;
+      pickTextFile: () => Promise<null | { token: string; name: string; extension: string; bytes: number; modifiedAt: number }>;
+      readTextFile: (token: string) => Promise<{ content: string; bytes: number; modifiedAt: number }>;
+      writeTextFile: (token: string, content: string) => Promise<{ written: boolean; cancelled: boolean; bytes?: number; backupName?: string }>;
+      applications: () => Promise<Array<{ id: string; name: string }>>;
+      launchApplication: (id: string) => Promise<{ launched: boolean; cancelled: boolean }>;
+    };
   };
 }

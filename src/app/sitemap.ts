@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { WORLDS } from "@/lib/data/worlds";
 
-const BASE = "https://universe.example.com"; // ← set to your deployed domain
+const BASE = "http://127.0.0.1:3199";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticPaths = [
@@ -15,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/briefing",
     "/writing",
     "/vault",
+    "/operator",
     "/settings",
   ];
   const worldPaths = WORLDS.map((w) => `/worlds/${w.slug}`);

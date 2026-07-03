@@ -15,5 +15,6 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/briefing", label: "Daily Briefing", icon: "sunrise" },
   { href: "/writing", label: "Writing Studio", icon: "penLine" },
   { href: "/vault", label: "Personal Vault", icon: "lock" },
+  { href: "/operator", label: "Atlas Operator", icon: "monitorCog" },
   { href: "/settings", label: "Settings", icon: "settings" },
 ];

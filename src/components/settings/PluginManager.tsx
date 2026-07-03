@@ -28,10 +28,16 @@ export function PluginManager() {
     setBusy(plugin.id);
     setError("");
     try {
+      let enabled = !plugin.enabled;
+      if (plugin.id === "desktop" && window.universeDesktop) {
+        const operator = await window.universeDesktop.operator.setEnabled(enabled);
+        if (!operator.changed) return;
+        enabled = operator.enabled;
+      }
       const response = await fetch("/api/plugins", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: plugin.id, enabled: !plugin.enabled }),
+        body: JSON.stringify({ id: plugin.id, enabled }),
       });
       if (!response.ok) throw new Error("Plugin state rejected.");
       await load();

@@ -24,6 +24,7 @@ import {
   FileText,
   Mail,
   Map,
+  MonitorCog,
   type LucideIcon,
 } from "lucide-react";
 
@@ -54,6 +55,7 @@ export const ICONS: Record<string, LucideIcon> = {
   fileText: FileText,
   mail: Mail,
   map: Map,
+  monitorCog: MonitorCog,
 };
 
 export function Icon({ name, size = 18, className }: { name: string; size?: number; className?: string }) {

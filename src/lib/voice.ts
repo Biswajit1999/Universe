@@ -7,7 +7,7 @@ interface SpeechRecognitionLike {
   start: () => void;
   stop: () => void;
   abort?: () => void;
-  onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
+  onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal?: boolean }> }) => void) | null;
   onerror: ((e: unknown) => void) | null;
   onend: (() => void) | null;
 }
@@ -42,6 +42,7 @@ export interface SpeechSession {
 /** Start one-shot dictation and return the final transcript. */
 export function startVoice(handlers: {
   onText: (text: string) => void;
+  onPartial?: (text: string) => void;
   onEnd?: () => void;
   onError?: () => void;
 }): VoiceSession | null {
@@ -49,14 +50,16 @@ export function startVoice(handlers: {
   if (!Ctor) return null;
   const recognition = new Ctor();
   recognition.lang = "en-GB";
-  recognition.interimResults = false;
+  recognition.interimResults = true;
   recognition.continuous = false;
   recognition.onresult = (event) => {
     const transcript = Array.from(
       { length: event.results.length },
       (_, index) => event.results[index][0].transcript,
     ).join(" ");
-    handlers.onText(transcript.trim());
+    const last = event.results[event.results.length - 1];
+    if (last?.isFinal === false) handlers.onPartial?.(transcript.trim());
+    else handlers.onText(transcript.trim());
   };
   recognition.onerror = () => handlers.onError?.();
   recognition.onend = () => handlers.onEnd?.();

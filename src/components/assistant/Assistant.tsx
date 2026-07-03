@@ -70,16 +70,25 @@ export function Assistant() {
   const [activeAgent, setActiveAgent] = useState<AgentId>("core");
   const [desktopAvailable, setDesktopAvailable] = useState(false);
   const [memoryEnabled, setMemoryEnabled] = useState(false);
+  const [handsFree, setHandsFree] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const voiceRef = useRef<VoiceSession | null>(null);
   const speechRef = useRef<SpeechSession | null>(null);
   const requestRef = useRef<AbortController | null>(null);
+  const beginListeningRef = useRef<() => void>(() => {});
+  const handsFreeRef = useRef(false);
+  const voiceModeRef = useRef(false);
 
   useEffect(() => {
     setVoiceAvailable(isVoiceSupported() && isSpeechSupported());
     setDesktopAvailable(window.universeDesktop?.isDesktop === true);
   }, []);
+
+  useEffect(() => {
+    handsFreeRef.current = handsFree;
+    voiceModeRef.current = voiceMode;
+  }, [handsFree, voiceMode]);
 
   const stopVoiceActivity = useCallback(() => {
     voiceRef.current?.stop();
@@ -99,6 +108,9 @@ export function Assistant() {
       onEnd: () => {
         setPlayingMessage(null);
         setVoicePhase("idle");
+        if (handsFreeRef.current && voiceModeRef.current) {
+          window.setTimeout(() => beginListeningRef.current(), 320);
+        }
       },
       onError: () => {
         setPlayingMessage(null);
@@ -183,6 +195,10 @@ export function Assistant() {
         setVoicePhase("thinking");
         setTimeout(() => void send(text, pendingContext, true), 0);
       },
+      onPartial: (text) => {
+        setVoiceTranscript(text);
+        setInput(text);
+      },
       onEnd: () => {
         voiceRef.current = null;
         if (!received && !failed) setVoicePhase("idle");
@@ -199,6 +215,10 @@ export function Assistant() {
     }
     voiceRef.current = session;
   }, [pendingContext, send, thinking, voiceAvailable]);
+
+  useEffect(() => {
+    beginListeningRef.current = beginListening;
+  }, [beginListening]);
 
   const handleVoiceCore = useCallback(() => {
     if (voicePhase === "listening") {
@@ -419,6 +439,18 @@ export function Assistant() {
               >
                 {autoSpeak ? <Volume2 size={11} /> : <VolumeX size={11} />}
                 Spoken replies {autoSpeak ? "on" : "off"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setHandsFree((value) => !value)}
+                className={cn(
+                  "ml-2 mt-3 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] transition",
+                  handsFree ? "border-emerald-300/35 bg-emerald-300/[0.08] text-emerald-200" : "border-edge text-muted hover:text-ink",
+                )}
+                aria-pressed={handsFree}
+                title="After Universe finishes speaking, automatically listen for your next request."
+              >
+                <Radio size={11} /> Hands-free loop {handsFree ? "on" : "off"}
               </button>
             </section>
           )}

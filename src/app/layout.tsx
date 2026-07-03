@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "UNIVERSE" },
   authors: [{ name: "Biswajit Jana" }],
   keywords: ["science", "research", "astronomy", "AI", "personal assistant", "data", "simulation"],
+  robots: { index: false, follow: false, noarchive: true, nosnippet: true },
 };
 
 export const viewport: Viewport = {

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, safeStorage, shell } = require("electron");
+const { app, BrowserWindow, dialog, ipcMain, safeStorage, shell } = require("electron");
 const { randomBytes } = require("node:crypto");
 const { spawn } = require("node:child_process");
 const fs = require("node:fs");
@@ -6,6 +6,7 @@ const http = require("node:http");
 const path = require("node:path");
 const { createSecureStore } = require("./secure-store.cjs");
 const { createDiagnostics } = require("./diagnostics.cjs");
+const { createOperator } = require("./operator.cjs");
 
 const HOST = "127.0.0.1";
 const PORT = 3199;
@@ -15,6 +16,7 @@ let mainWindow = null;
 let secureStore = null;
 let diagnostics = null;
 let dataDirectory = null;
+let operator = null;
 
 function waitForServer(url, timeoutMs = 30000) {
   const started = Date.now();
@@ -42,6 +44,14 @@ function initialisePrivateRuntime() {
   secureStore = createSecureStore({ filePath: path.join(userData, "credentials.json"), safeStorage });
   secureStore.ensureInternal("UNIVERSE_VAULT_KEY", () => randomBytes(32).toString("base64"));
   diagnostics.write("runtime.initialised", { packaged: app.isPackaged, platform: process.platform });
+  operator = createOperator({
+    stateFile: path.join(userData, "operator.json"),
+    backupDirectory: path.join(userData, "backups"),
+    dialog,
+    shell,
+    diagnostics,
+    getWindow: () => mainWindow,
+  });
 }
 
 async function startLocalServer() {
@@ -110,6 +120,34 @@ function registerPrivateIpc() {
   ipcMain.handle("universe:diagnostics-recent", (event) => {
     assertTrustedSender(event);
     return diagnostics.recent(50);
+  });
+  ipcMain.handle("universe:operator-status", (event) => {
+    assertTrustedSender(event);
+    return operator.status();
+  });
+  ipcMain.handle("universe:operator-enable", (event, enabled) => {
+    assertTrustedSender(event);
+    return operator.setEnabled(Boolean(enabled));
+  });
+  ipcMain.handle("universe:operator-pick-text", (event) => {
+    assertTrustedSender(event);
+    return operator.pickTextFile();
+  });
+  ipcMain.handle("universe:operator-read-text", (event, token) => {
+    assertTrustedSender(event);
+    return operator.readSelectedFile(String(token ?? ""));
+  });
+  ipcMain.handle("universe:operator-write-text", (event, input) => {
+    assertTrustedSender(event);
+    return operator.writeSelectedFile(String(input?.token ?? ""), String(input?.content ?? ""));
+  });
+  ipcMain.handle("universe:operator-apps", (event) => {
+    assertTrustedSender(event);
+    return operator.listApplications();
+  });
+  ipcMain.handle("universe:operator-launch", (event, id) => {
+    assertTrustedSender(event);
+    return operator.launchApplication(String(id ?? ""));
   });
 }
 
