@@ -175,25 +175,54 @@ body {
   border-radius: 8px;
 }
 
-/* Markdown-ish content spacing used by assistant + generators */
+/* Standards-based Markdown + KaTeX output used by the assistant and generators. */
 .prose-universe p {
-  margin: 0.5rem 0;
-  line-height: 1.6;
+  margin: 0.65rem 0;
+  line-height: 1.68;
 }
 .prose-universe h1,
 .prose-universe h2,
-.prose-universe h3 {
-  margin: 0.9rem 0 0.4rem;
-  font-weight: 600;
+.prose-universe h3,
+.prose-universe h4,
+.prose-universe h5,
+.prose-universe h6 {
+  margin: 1.15rem 0 0.5rem;
+  color: var(--ink);
+  font-weight: 650;
   line-height: 1.3;
 }
+.prose-universe h1 { font-size: 1.35rem; }
+.prose-universe h2 { font-size: 1.15rem; color: color-mix(in srgb, var(--accent) 78%, var(--ink)); }
+.prose-universe h3 { font-size: 1rem; }
+.prose-universe h4,
+.prose-universe h5,
+.prose-universe h6 { font-size: 0.92rem; }
 .prose-universe ul,
 .prose-universe ol {
-  margin: 0.4rem 0;
-  padding-left: 1.2rem;
+  margin: 0.55rem 0;
+  padding-left: 1.35rem;
 }
 .prose-universe li {
-  margin: 0.2rem 0;
+  margin: 0.32rem 0;
+  line-height: 1.58;
+}
+.prose-universe ul { list-style: disc; }
+.prose-universe ol { list-style: decimal; }
+.prose-universe strong {
+  color: color-mix(in srgb, var(--ink) 92%, var(--accent));
+  font-weight: 700;
+}
+.prose-universe blockquote {
+  margin: 0.8rem 0;
+  border-left: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  padding: 0.45rem 0.8rem;
+  color: var(--muted);
+}
+.prose-universe hr {
+  margin: 1rem 0;
+  border: 0;
+  border-top: 1px solid var(--edge);
 }
 .prose-universe code {
   font-family: var(--font-mono, monospace);
@@ -203,12 +232,14 @@ body {
   font-size: 0.85em;
 }
 .prose-universe pre {
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid var(--edge);
-  border-radius: 0.6rem;
-  padding: 0.8rem;
+  background: rgba(1, 4, 12, 0.72);
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--edge));
+  border-radius: 0.75rem;
+  padding: 0.9rem;
   overflow-x: auto;
-  margin: 0.6rem 0;
+  margin: 0.8rem 0;
+  color: #d8f3ff;
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.22);
 }
 .prose-universe pre code {
   background: none;
@@ -216,8 +247,10 @@ body {
 }
 .prose-universe table {
   width: 100%;
+  display: block;
+  overflow-x: auto;
   border-collapse: collapse;
-  margin: 0.6rem 0;
+  margin: 0.8rem 0;
   font-size: 0.9em;
 }
 .prose-universe th,
@@ -230,6 +263,135 @@ body {
   color: var(--accent);
   text-decoration: underline;
 }
+.prose-universe .katex-display {
+  margin: 0.9rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
+  border-radius: 0.75rem;
+  background: rgba(1, 4, 12, 0.45);
+  padding: 0.8rem 0.6rem;
+}
+.prose-universe .katex {
+  color: color-mix(in srgb, var(--accent) 70%, var(--ink));
+  font-size: 1.02em;
+}
+
+/* Futuristic assistant console and voice-link state machine. */
+.assistant-launcher {
+  background: linear-gradient(135deg, rgba(9, 18, 36, 0.92), rgba(16, 25, 52, 0.86));
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35), 0 0 32px rgba(103, 232, 249, 0.08);
+}
+.assistant-console {
+  background:
+    radial-gradient(circle at 50% 12%, rgba(56, 189, 248, 0.09), transparent 34%),
+    linear-gradient(180deg, rgba(5, 7, 18, 0.98), rgba(5, 8, 20, 0.98));
+}
+.assistant-console-grid {
+  opacity: 0.16;
+  background-image:
+    linear-gradient(rgba(125, 211, 252, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(125, 211, 252, 0.08) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(to bottom, black, transparent 72%);
+}
+.assistant-voice-stage {
+  min-height: 292px;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 42%, rgba(56, 189, 248, 0.11), transparent 38%);
+}
+.assistant-voice-horizon {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 520px;
+  height: 110px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(103, 232, 249, 0.12);
+  border-radius: 50%;
+  box-shadow: 0 0 60px rgba(56, 189, 248, 0.06);
+}
+.assistant-voice-core {
+  position: relative;
+  display: grid;
+  width: 118px;
+  height: 118px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: #a5f3fc;
+  transition: transform 240ms ease, filter 240ms ease;
+}
+.assistant-voice-core:not(:disabled):hover {
+  transform: scale(1.04);
+  filter: brightness(1.12);
+}
+.assistant-voice-center {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+  border: 1px solid rgba(103, 232, 249, 0.52);
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 30%, rgba(165, 243, 252, 0.3), rgba(8, 47, 73, 0.92) 66%);
+  box-shadow: 0 0 28px rgba(103, 232, 249, 0.22), inset 0 0 24px rgba(103, 232, 249, 0.12);
+}
+.assistant-voice-ring {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(103, 232, 249, 0.32);
+  border-radius: 50%;
+  animation: voice-ring 3.2s ease-out infinite;
+}
+.assistant-voice-ring.ring-two { animation-delay: -1.05s; }
+.assistant-voice-ring.ring-three { animation-delay: -2.1s; }
+.assistant-voice-core.is-idle .assistant-voice-ring { animation-play-state: paused; opacity: 0.28; }
+.assistant-voice-core.is-thinking .assistant-voice-center { animation: voice-core-thinking 1.2s ease-in-out infinite; }
+.assistant-voice-core.is-listening .assistant-voice-center {
+  color: #fda4af;
+  border-color: rgba(251, 113, 133, 0.62);
+  background: radial-gradient(circle at 36% 30%, rgba(253, 164, 175, 0.3), rgba(76, 5, 25, 0.92) 66%);
+  box-shadow: 0 0 34px rgba(251, 113, 133, 0.28), inset 0 0 24px rgba(251, 113, 133, 0.12);
+}
+.assistant-voice-core.is-speaking .assistant-voice-ring { border-color: rgba(196, 181, 253, 0.42); }
+.assistant-voice-core.is-speaking .assistant-voice-center {
+  color: #ddd6fe;
+  border-color: rgba(196, 181, 253, 0.62);
+  background: radial-gradient(circle at 36% 30%, rgba(221, 214, 254, 0.28), rgba(46, 16, 101, 0.9) 66%);
+}
+.assistant-waveform {
+  display: flex;
+  width: 144px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.assistant-waveform span {
+  width: 2px;
+  height: 4px;
+  border-radius: 99px;
+  background: #67e8f9;
+  opacity: 0.32;
+}
+.assistant-waveform.is-active span {
+  animation: voice-wave 0.8s ease-in-out infinite alternate;
+  opacity: 0.9;
+}
+@keyframes voice-ring {
+  0% { transform: scale(0.62); opacity: 0.68; }
+  100% { transform: scale(1.38); opacity: 0; }
+}
+@keyframes voice-wave {
+  from { height: 4px; transform: scaleY(0.65); }
+  to { height: 25px; transform: scaleY(1); }
+}
+@keyframes voice-core-thinking {
+  0%, 100% { transform: scale(0.94); filter: brightness(0.9); }
+  50% { transform: scale(1.04); filter: brightness(1.25); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -241,7 +403,10 @@ body {
   }
 
   .universe-scene-core,
-  .universe-scene-orbit {
+  .universe-scene-orbit,
+  .assistant-voice-ring,
+  .assistant-waveform span,
+  .assistant-voice-core {
     animation: none !important;
   }
 }

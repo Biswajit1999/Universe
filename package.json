@@ -15,11 +15,16 @@
   "dependencies": {
     "@react-three/fiber": "^9.6.1",
     "firebase": "^11.2.0",
+    "katex": "^0.17.0",
     "lucide-react": "^0.469.0",
     "next": "^15.1.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
     "recharts": "^2.15.1",
+    "rehype-katex": "^7.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
     "three": "^0.180.0"
   },
   "devDependencies": {

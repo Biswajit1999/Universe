@@ -1,16 +1,12 @@
-/**
- * Thin wrapper over the Web Speech API (SpeechRecognition). Degrades cleanly:
- * `isVoiceSupported()` is false on browsers without it, and the assistant hides
- * the mic button rather than pretending to listen.
- */
+/** Browser-native speech input and output with graceful feature detection. */
 
-// Minimal typings — the DOM lib doesn't ship SpeechRecognition types.
 interface SpeechRecognitionLike {
   lang: string;
   interimResults: boolean;
   continuous: boolean;
   start: () => void;
   stop: () => void;
+  abort?: () => void;
   onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
   onerror: ((e: unknown) => void) | null;
   onend: (() => void) | null;
@@ -18,45 +14,108 @@ interface SpeechRecognitionLike {
 
 type SRConstructor = new () => SpeechRecognitionLike;
 
-function getCtor(): SRConstructor | null {
+function getRecognitionCtor(): SRConstructor | null {
   if (typeof window === "undefined") return null;
-  const w = window as unknown as {
+  const browserWindow = window as unknown as {
     SpeechRecognition?: SRConstructor;
     webkitSpeechRecognition?: SRConstructor;
   };
-  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
+  return browserWindow.SpeechRecognition ?? browserWindow.webkitSpeechRecognition ?? null;
 }
 
 export function isVoiceSupported(): boolean {
-  return getCtor() !== null;
+  return getRecognitionCtor() !== null;
+}
+
+export function isSpeechSupported(): boolean {
+  return typeof window !== "undefined" && "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
 }
 
 export interface VoiceSession {
   stop: () => void;
 }
 
-/** Start a one-shot dictation. Calls onText with the final transcript. */
+export interface SpeechSession {
+  cancel: () => void;
+}
+
+/** Start one-shot dictation and return the final transcript. */
 export function startVoice(handlers: {
   onText: (text: string) => void;
   onEnd?: () => void;
   onError?: () => void;
 }): VoiceSession | null {
-  const Ctor = getCtor();
+  const Ctor = getRecognitionCtor();
   if (!Ctor) return null;
-  const rec = new Ctor();
-  rec.lang = "en-US";
-  rec.interimResults = false;
-  rec.continuous = false;
-  rec.onresult = (e) => {
-    const transcript = Array.from({ length: e.results.length }, (_, i) => e.results[i][0].transcript).join(" ");
+  const recognition = new Ctor();
+  recognition.lang = "en-GB";
+  recognition.interimResults = false;
+  recognition.continuous = false;
+  recognition.onresult = (event) => {
+    const transcript = Array.from(
+      { length: event.results.length },
+      (_, index) => event.results[index][0].transcript,
+    ).join(" ");
     handlers.onText(transcript.trim());
   };
-  rec.onerror = () => handlers.onError?.();
-  rec.onend = () => handlers.onEnd?.();
+  recognition.onerror = () => handlers.onError?.();
+  recognition.onend = () => handlers.onEnd?.();
   try {
-    rec.start();
+    recognition.start();
   } catch {
     return null;
   }
-  return { stop: () => rec.stop() };
+  return { stop: () => (recognition.abort ? recognition.abort() : recognition.stop()) };
+}
+
+/** Convert visual Markdown and common LaTeX into calmer speech-friendly text. */
+export function toSpeechText(markdown: string): string {
+  return markdown
+    .replace(/```[\s\S]*?```/g, " A code or diagram example is displayed on screen. ")
+    .replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, "$1 divided by $2")
+    .replace(/\\text\{([^{}]+)\}/g, "$1")
+    .replace(/\\(approx|sim)/g, " approximately ")
+    .replace(/\\times/g, " times ")
+    .replace(/\\cdot/g, " multiplied by ")
+    .replace(/\\sqrt\{([^{}]+)\}/g, " square root of $1 ")
+    .replace(/\^\{([^{}]+)\}/g, " to the power $1 ")
+    .replace(/_\{([^{}]+)\}/g, " sub $1 ")
+    .replace(/\$+/g, " ")
+    .replace(/\\[a-zA-Z]+/g, " ")
+    .replace(/[{}]/g, " ")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/^\s*\d+\.\s+/gm, "")
+    .replace(/\*\*|__|~~|`/g, "")
+    .replace(/\[([^\]]+)]\([^)]+\)/g, "$1")
+    .replace(/\n{2,}/g, ". ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Speak a response using the best available local English system voice. */
+export function speakText(
+  markdown: string,
+  handlers: { onStart?: () => void; onEnd?: () => void; onError?: () => void } = {},
+): SpeechSession | null {
+  if (!isSpeechSupported()) return null;
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(toSpeechText(markdown));
+  const voices = window.speechSynthesis.getVoices();
+  const englishVoices = voices.filter((voice) => voice.lang.toLowerCase().startsWith("en"));
+  utterance.voice = englishVoices.find((voice) => voice.localService) ?? englishVoices[0] ?? null;
+  utterance.lang = utterance.voice?.lang ?? "en-GB";
+  utterance.rate = 0.96;
+  utterance.pitch = 0.92;
+  utterance.volume = 1;
+  utterance.onstart = () => handlers.onStart?.();
+  utterance.onend = () => handlers.onEnd?.();
+  utterance.onerror = () => handlers.onError?.();
+  window.speechSynthesis.speak(utterance);
+  return { cancel: () => window.speechSynthesis.cancel() };
+}
+
+export function stopSpeech(): void {
+  if (isSpeechSupported()) window.speechSynthesis.cancel();
 }

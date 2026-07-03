@@ -11,7 +11,7 @@ import { UNIVERSE_SYSTEM_PROMPT } from "@/lib/ai/prompts";
 
 export async function POST(request: Request) {
   const apiKey = process.env.GEMINI_API_KEY; // ← insert your key in .env.local
-  const model = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+  const model = process.env.GEMINI_MODEL || "gemini-3.5-flash";
 
   let body: { prompt?: string; history?: { role: string; content: string }[] };
   try {

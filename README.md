@@ -35,7 +35,7 @@ live LLM the moment you add keys. Every dataset and result is honestly labelled:
 | # | Area | What it does |
 |---|------|--------------|
 | 1 | **Command Center** | Interactive 3D orbital interface, time-aware greeting, universal command bar, quick commands, and live status cards. |
-| 2 | **Hey Universe** | Global AI assistant — explains concepts, drafts docs, plans studies, reasons about "what ifs". Live (Gemini) or labelled offline mock. |
+| 2 | **Hey Universe** | Futuristic voice-to-voice and text assistant with spoken replies, Markdown, equations, research drafting, and labelled Gemini/demo modes. |
 | 3 | **Science Worlds** | Ten interconnected domains; four with deep interactive modules. |
 | 4 | **Astronomy** | Exoplanet Explorer (real snapshot + live TAP), NEO feed (NASA), synthetic TESS light curves. |
 | 5 | **Physics** | Gravity, orbits, PID, thermal drift, blackbody, black-hole explainer. |
@@ -71,6 +71,8 @@ That's it. With no `.env.local`, UNIVERSE runs fully in **Demo Mode**.
 
 ### Nice touches
 - **Interactive WebGL scenes** — orbital command center and color-coded spatial models for every Science World.
+- **Voice-to-voice assistant** — ask through the microphone and hear Universe answer aloud, with text controls preserved.
+- **Scientific typesetting** — GitHub-flavoured Markdown, fenced diagrams, tables, and KaTeX equations.
 - **⌘K / Ctrl+K** opens the assistant from anywhere; **Esc** closes it.
 - **🎤 Voice input** — the assistant has a mic button where the Web Speech API is available.
 - **Installable PWA** with an offline service worker (production builds).
