@@ -1,5 +1,5 @@
 "use client";
-import { Radio, Moon, Sun, ShieldAlert, Database, Sparkles, Github, User } from "lucide-react";
+import { Radio, Moon, Sun, ShieldAlert, Database, Sparkles, LockKeyhole, User } from "lucide-react";
 import { Panel } from "@/components/ui/Panel";
 import { Badge } from "@/components/ui/Badge";
 import { useSettings } from "@/lib/state/settings";
@@ -114,11 +114,11 @@ export function Settings() {
           <Sparkles size={16} className="text-accent" /> About
         </h3>
         <p className="text-xs text-muted">
-          UNIVERSE — The Living Scientific Operating System · open-source MVP v0.1 · built by Biswajit Jana.
+          UNIVERSE — private personal intelligence system · owned and built by Biswajit Jana.
         </p>
-        <a href="https://github.com/" target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-2 text-xs text-accent">
-          <Github size={13} /> View source
-        </a>
+        <p className="mt-2 inline-flex items-center gap-2 text-xs text-emerald-300/75">
+          <LockKeyhole size={13} /> Proprietary · local-first
+        </p>
       </Panel>
     </div>
   );

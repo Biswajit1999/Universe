@@ -1,7 +1,8 @@
 # Architecture
 
-UNIVERSE is a single Next.js 15 (App Router) application. It is deliberately structured so that
-**pure logic**, **data access**, and **presentation** are separable and testable.
+UNIVERSE is a Next.js 15 (App Router) application with a security-hardened Electron desktop shell.
+It is deliberately structured so that **pure logic**, **data access**, **presentation**, and the
+trusted desktop boundary remain separable and testable. See [desktop-architecture.md](desktop-architecture.md).
 
 ## High-level diagram
 

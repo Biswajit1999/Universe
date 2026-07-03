@@ -1,7 +1,7 @@
 {
-  "name": "UNIVERSE — The Living Scientific Operating System",
+  "name": "UNIVERSE — Personal Intelligence System",
   "short_name": "UNIVERSE",
-  "description": "A Jarvis-like open-source research, science and knowledge platform.",
+  "description": "Biswajit's private, local-first scientific intelligence system.",
   "start_url": "/command",
   "display": "standalone",
   "background_color": "#05060f",

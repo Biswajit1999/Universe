@@ -49,8 +49,8 @@ in the codebase, and how to enable live access.
 
 ## Adding a source
 
-See the checklist in [`CONTRIBUTING.md`](../CONTRIBUTING.md#adding-a-live-api-integration). The
-short version: typed wrapper → server route with demo fallback → demo JSON → register in
+Follow the engineering rules in [`MASTER_BUILD_PROMPT.md`](MASTER_BUILD_PROMPT.md). The short
+version: typed wrapper → server route with demo fallback → demo JSON → register in
 `src/lib/data/sources.ts`.
 
 ## Rate limits & etiquette

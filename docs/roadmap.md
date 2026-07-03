@@ -1,7 +1,7 @@
 # Roadmap
 
-UNIVERSE is designed to grow into a long-term public scientific AI platform. This is the intended
-trajectory — contributions against any item are welcome.
+UNIVERSE is designed to grow into Biswajit's long-term private scientific intelligence system.
+This roadmap tracks the owner-controlled desktop product.
 
 ## v0.1 — MVP (this release) ✅
 
@@ -61,4 +61,4 @@ trajectory — contributions against any item are welcome.
 ## Non-goals
 
 - Presenting simulated or demo output as authoritative real-world data — ever.
-- Becoming a closed SaaS. UNIVERSE stays open-source.
+- Becoming a public SaaS. UNIVERSE stays private, owner-controlled and local-first.

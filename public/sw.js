@@ -3,7 +3,7 @@
  *  - Demo data (/demo-data/*) and static assets: cache-first (they're static).
  *  - Everything else: network-first, falling back to cache when offline.
  * Kept intentionally small; a richer Workbox setup is on the v2 roadmap. */
-const CACHE = "universe-v1";
+const CACHE = "universe-v2";
 const PRECACHE = ["/", "/command", "/manifest.webmanifest", "/icon.svg"];
 
 self.addEventListener("install", (event) => {

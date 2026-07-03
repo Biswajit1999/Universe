@@ -108,7 +108,7 @@ The three things that mattered:
 2. [Insight two]
 3. [The mistake you'd tell others to avoid]
 
-Everything is open source — link in the comments. If you're working on something similar, I'd genuinely like to compare notes.
+The implementation is private, but I am happy to discuss the scientific method and lessons learned. If you're working on something similar, I'd genuinely like to compare notes.
 
 #OpenScience #Engineering #DataScience`,
   },
@@ -140,11 +140,11 @@ cd ${topic(i).toLowerCase().replace(/[^a-z0-9]+/g, "-")}
 - [ ] [Next milestone]
 - [ ] [After that]
 
-## Contributing
-Issues and PRs welcome — see CONTRIBUTING.md.
+## Development status
+Private project maintained by ${sig(i)}.
 
 ## License
-MIT © ${sig(i)}`,
+Proprietary — all rights reserved © ${sig(i)}`,
   },
   {
     id: "abstract",
@@ -161,7 +161,7 @@ MIT © ${sig(i)}`,
 
 *Results.* We find [main result with a number and an uncertainty]. This is robust to [key systematic check].
 
-*Conclusions.* [What this changes for the field, one sentence.] All code and data products are publicly available.`,
+*Conclusions.* [What this changes for the field, one sentence.] Reproducibility materials are available under the project's stated access policy.`,
   },
   {
     id: "project-desc",
@@ -192,11 +192,11 @@ This project delivers [the concrete artefact: a pipeline / analysis / tool] buil
 **Approach.**
 1. [Work package 1 — months 1–3]
 2. [Work package 2 — months 4–8]
-3. [Validation + open release — months 9–12]
+3. [Validation + controlled release — months 9–12]
 
 **Why now / why us.** [Recent enabler — new dataset, new method — plus your specific proof of capability.]
 
-**Deliverables.** Open-source software, a public dataset/catalogue, and one peer-reviewed publication.
+**Deliverables.** Reproducible software, a governed dataset/catalogue, and one peer-reviewed publication.
 
 **Budget outline.** [Personnel, compute, travel — keep to three lines.]`,
   },

@@ -7,13 +7,13 @@ export default function Landing() {
     <div className="relative">
       <section className="flex flex-col items-center py-10 text-center sm:py-16">
         <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-edge px-3 py-1 text-xs text-muted">
-          <Sparkles size={13} className="text-accent" /> Open-source · Jarvis for science
+          <Sparkles size={13} className="text-accent" /> Private · Personal intelligence for science
         </span>
         <h1 className="max-w-3xl text-4xl font-bold leading-tight tracking-tight sm:text-6xl">
           <span className="text-gradient">UNIVERSE</span>
           <br />
-          The Living Scientific
-          <br className="hidden sm:block" /> Operating System
+          Your Personal Scientific
+          <br className="hidden sm:block" /> Intelligence System
         </h1>
         <p className="mt-5 max-w-xl text-sm text-muted sm:text-base">
           Say <em>&ldquo;Hey Universe&rdquo;</em> and explore live datasets, run simulations,

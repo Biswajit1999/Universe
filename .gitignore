@@ -8,6 +8,8 @@ next-env.d.ts
 
 # production
 /build
+/release/
+/.codex-*.log
 
 # misc
 .DS_Store

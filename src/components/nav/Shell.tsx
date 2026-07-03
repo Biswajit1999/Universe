@@ -83,19 +83,19 @@ export function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-dvh">
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-edge px-4 py-5 lg:flex">
+      <aside className="hud-nav sticky top-0 hidden h-dvh w-56 shrink-0 flex-col border-r border-cyan-300/10 px-4 py-5 lg:flex">
         <Link href="/command" className="mb-6 flex items-center gap-2 px-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-edge bg-accent/10">
             <span className="text-gradient text-lg font-bold">U</span>
           </div>
           <div>
             <p className="text-sm font-semibold tracking-wide">UNIVERSE</p>
-            <p className="text-[10px] text-muted">Scientific OS</p>
+            <p className="text-[9px] uppercase tracking-[0.16em] text-cyan-100/40">Personal intelligence</p>
           </div>
         </Link>
         <NavLinks />
-        <div className="mt-auto px-2 pt-4 text-[10px] text-muted">
-          <p>Open-source MVP · v0.1</p>
+        <div className="mt-auto border-t border-cyan-300/10 px-2 pt-4 text-[9px] uppercase tracking-[0.14em] text-cyan-100/35">
+          <p className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-emerald-300" /> Private node · BJ-01</p>
         </div>
       </aside>
 
@@ -126,7 +126,7 @@ export function Shell({ children }: { children: ReactNode }) {
 
       {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-edge bg-bg/70 px-4 py-3 backdrop-blur-lg">
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-cyan-300/10 bg-[#03050c]/80 px-4 py-2.5 backdrop-blur-xl">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setDrawer(true)}
@@ -145,10 +145,10 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+        <main className="mx-auto w-full max-w-[1600px] flex-1 px-3 py-4 sm:px-5 lg:px-6">{children}</main>
 
-        <footer className="border-t border-edge px-4 py-4 text-center text-[11px] text-muted">
-          UNIVERSE · The Living Scientific Operating System · Data labelled Demo / Live / Estimated / Simulated ·{" "}
+        <footer className="border-t border-cyan-300/10 px-4 py-4 text-center text-[10px] uppercase tracking-[0.12em] text-cyan-100/35">
+          UNIVERSE · Personal Intelligence System · Data labelled Demo / Live / Estimated / Simulated ·{" "}
           <Link href="/settings" className="underline">
             Science disclaimer
           </Link>
