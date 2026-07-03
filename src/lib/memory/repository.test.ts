@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { addMemory, listMemory, removeMemory, searchMemory } from "./repository";
 import { listPluginStates, setPluginEnabled } from "@/lib/plugins/repository";
+import { assertPrivateDesktopRequest } from "@/lib/server/local-request";
 
 let directory = "";
 
@@ -40,5 +41,19 @@ describe("plugin state", () => {
     await setPluginEnabled("nasa", false);
     expect((await listPluginStates()).find((plugin) => plugin.id === "nasa")?.enabled).toBe(false);
     expect(readFileSync(join(directory, "plugins.enc"), "utf8")).not.toContain('"enabled":false');
+  });
+});
+
+describe("private request boundary", () => {
+  it("accepts a loopback Host/Origin pair even when the internal URL was reconstructed", () => {
+    const request = new Request("http://localhost:3000/api/memory", {
+      headers: { host: "127.0.0.1:3199", origin: "http://127.0.0.1:3199", "sec-fetch-site": "same-origin" },
+    });
+    expect(() => assertPrivateDesktopRequest(request)).not.toThrow();
+  });
+
+  it("rejects a non-loopback host", () => {
+    const request = new Request("https://universe.example.com/api/memory", { headers: { host: "universe.example.com" } });
+    expect(() => assertPrivateDesktopRequest(request)).toThrow("PRIVATE_RUNTIME_REQUIRED");
   });
 });

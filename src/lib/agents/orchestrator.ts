@@ -70,6 +70,13 @@ export async function* runOrchestrator(input: OrchestratorRequest, signal?: Abor
       provider: "universe-policy",
       mode: "demo" as const,
     };
+  } else if (tools.some((tool) => tool.mode === "simulated")) {
+    const simulated = tools.filter((tool) => tool.mode === "simulated");
+    response = {
+      text: `## Newton simulation\n\n${simulated.map((tool) => tool.summary).join("\n\n")}\n\n**Provenance:** simulated locally with transparent first-order models. Verify assumptions before research or operational use.`,
+      provider: "universe-simulation",
+      mode: "simulated" as const,
+    };
   } else {
     response = await mockGenerate({ prompt, context: input.context, history: input.history });
   }

@@ -32,4 +32,13 @@ describe("orchestrator policy", () => {
     expect(final?.agent).toBe("system");
     expect(final?.result?.text).toContain("did not execute");
   });
+
+  it("uses a local transparent simulation in demo mode", async () => {
+    const events = [];
+    for await (const event of runOrchestrator({ prompt: "Simulate an Earth orbit at two astronomical units", demoMode: true })) events.push(event);
+    const final = events.find((event) => event.type === "completed");
+    expect(final?.result?.mode).toBe("simulated");
+    expect(final?.result?.text).toContain("2.828 years");
+    expect(final?.result?.text).toContain("two-body orbit");
+  });
 });

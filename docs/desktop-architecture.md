@@ -1,49 +1,54 @@
-# Desktop architecture
+# Desktop security architecture
 
-UNIVERSE uses Electron as a narrow desktop container around the existing Next.js application. The
-desktop boundary is intentionally conservative because future agents may work with personal files
-and applications.
-
-## Processes
+UNIVERSE uses Electron as a narrow trusted container around a sandboxed Next.js interface.
 
 ```text
-┌──────────────────────────────────────────────────────────────┐
-│ Electron main (trusted)                                      │
-│  lifecycle · local server · credential store · permissions   │
-└───────────────────┬───────────────────────────┬──────────────┘
-                    │ typed IPC                 │ spawn
-┌───────────────────▼─────────────────┐  ┌──────▼──────────────┐
-│ Preload capability facade          │  │ Next standalone     │
-│ no generic fs/shell/exec exposure  │  │ 127.0.0.1 only      │
-└───────────────────┬─────────────────┘  │ API + orchestrator   │
-                    │                    └──────┬──────────────┘
-┌───────────────────▼─────────────────┐         │ HTTPS
-│ Renderer (sandboxed)                │         ▼
-│ React · Tailwind · R3F · voice UI   │   approved cloud APIs
-└─────────────────────────────────────┘
+Renderer (sandboxed, no Node)
+  ├── same-origin fetch
+  │     └── Next standalone on 127.0.0.1:3199
+  │           ├── orchestrator and read-only plugins
+  │           ├── AES-256-GCM memory/plugin state
+  │           └── Gemini/NASA/arXiv adapters
+  └── typed preload IPC
+        └── Electron main permission broker
+              ├── safeStorage credential store
+              ├── native owner approvals
+              ├── selected-file token map
+              ├── private backup journal
+              └── Notepad/Calculator allow-list
 ```
 
-## Current bridge
+## Credentials
 
-The preload exposes only `getInfo()`. File access, command execution and application launching are
-not exposed. This keeps the initial desktop build useful without accidentally granting a model or
-web content unrestricted access to the PC.
+`electron/secure-store.cjs` accepts only named connectors. Electron `safeStorage` encrypts values
+using Windows protection. The renderer can list configured/not-configured state, set a replacement,
+or remove a key; no method returns plaintext. The main process injects decrypted values only into
+the local server process at startup.
 
-## Next security slice
+## Memory
 
-The permission broker should introduce one capability at a time:
+The main process creates a random 256-bit vault key and protects it through the credential store.
+The local server uses AES-256-GCM envelopes for explicit memory and plugin state. Files are fixed-name
+collections inside Electron's private user-data directory. Hosted deployments do not receive the
+data directory/key and therefore cannot open these routes.
 
-1. `files.pick` through a native owner-controlled picker
-2. `files.read` for the exact selected path
-3. `files.write` with a diff/preview and explicit confirmation
-4. `apps.launch` from a user-managed allow-list
+## Atlas
 
-Each call receives a request id, agent id, purpose, exact scope and risk level. The broker validates
-the payload, requests approval when necessary, executes with a timeout and writes a local audit
-event. No generic `exec(command)` IPC method should ever exist.
+Atlas is disabled by default. Enabling it shows a native warning. A file becomes accessible only
+after the owner selects it in a native picker; the renderer receives a short-lived token rather than
+an arbitrary path. Text reads are capped at 1 MiB. Every write shows another native approval,
+creates a private backup and atomically replaces only the selected file.
 
-## Packaging
+Application launching uses an internal allow-list. There is deliberately no `exec(command)`, broad
+folder traversal, shell string or arbitrary application path API.
 
-`npm run desktop:package` creates the Next standalone build, copies it into Electron resources and
-builds a Windows NSIS installer. Production starts the local server on `127.0.0.1:3199`; the window
-rejects navigation away from that origin and opens external HTTP links in the default browser.
+## Diagnostics
+
+Lifecycle and Atlas events are JSONL records in the app's user-data logs directory. Fields whose
+names resemble secrets, tokens, passwords or API keys are replaced with `[redacted]` before writing.
+
+## Distribution
+
+`npm run desktop:package` creates an NSIS installer. A trusted public/private distribution still
+requires a Windows code-signing certificate and a private update feed; those are external release
+credentials, not values that belong in Git.

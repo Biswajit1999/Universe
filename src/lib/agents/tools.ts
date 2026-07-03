@@ -1,5 +1,5 @@
 import { demoData } from "@/lib/demo";
-import { AU, G, M_EARTH, M_SUN, WIEN_B } from "@/lib/simulations/models";
+import { AU, G, M_EARTH, M_SUN, WIEN_B, orbitalPeriod } from "@/lib/simulations/models";
 import type { AgentId, AgentToolResult } from "./types";
 import { pluginEnabled } from "@/lib/plugins/repository";
 
@@ -74,6 +74,28 @@ function constants(): AgentToolResult {
   };
 }
 
+function astronomicalUnits(prompt: string): number | null {
+  const numeric = prompt.match(/(\d+(?:\.\d+)?)\s*(?:au\b|astronomical units?)/i)?.[1];
+  if (numeric) return Number(numeric);
+  const words: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 };
+  const word = prompt.match(/\b(one|two|three|four|five|six|seven|eight|nine|ten)\s+astronomical units?\b/i)?.[1].toLowerCase();
+  return word ? words[word] : null;
+}
+
+function orbitalPeriodTool(prompt: string): AgentToolResult | null {
+  if (!/\b(orbit|orbital|period)\b/i.test(prompt)) return null;
+  const au = astronomicalUnits(prompt);
+  if (!au || au <= 0 || au > 1000) return null;
+  const result = orbitalPeriod(M_SUN, au * AU);
+  return {
+    tool: "simulation.orbital-period",
+    label: "Kepler orbital-period model",
+    mode: "simulated",
+    summary: `At ${au} AU around a one-solar-mass star, the first-order Keplerian orbital period is ${result.years.toFixed(3)} years (${result.days.toFixed(1)} days). Assumptions: two-body orbit, negligible planet mass, semi-major axis ${au} AU, central mass 1 M☉, no relativistic or multi-body perturbations.`,
+    data: { semiMajorAxisAu: au, centralMassSolar: 1, ...result },
+  };
+}
+
 export async function runReadOnlyTools(agent: AgentId, prompt: string, signal?: AbortSignal): Promise<AgentToolResult[]> {
   if (agent === "system") return [{
     tool: "desktop.permission-broker",
@@ -85,6 +107,10 @@ export async function runReadOnlyTools(agent: AgentId, prompt: string, signal?: 
   const selected: Array<Promise<AgentToolResult> | AgentToolResult> = [];
   if (agent === "data" && /\b(apod|picture of the day|today.*space|nasa image)\b/i.test(prompt) && await pluginEnabled("nasa")) selected.push(nasaApod(signal));
   if (agent === "data" && /\b(arxiv|latest paper|preprint)\b/i.test(prompt)) selected.push(latestArxiv(signal));
-  if ((agent === "simulation" || /\b(gravitational constant|astronomical unit|solar mass|earth mass|wien)\b/i.test(prompt)) && await pluginEnabled("science")) selected.push(constants());
+  if (agent === "simulation" && await pluginEnabled("science")) {
+    const orbital = orbitalPeriodTool(prompt);
+    if (orbital) selected.push(orbital);
+    selected.push(constants());
+  } else if (/\b(gravitational constant|astronomical unit|solar mass|earth mass|wien)\b/i.test(prompt) && await pluginEnabled("science")) selected.push(constants());
   return Promise.all(selected);
 }

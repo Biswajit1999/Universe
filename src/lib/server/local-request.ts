@@ -2,10 +2,11 @@ import { privateRuntimeAvailable } from "./encrypted-store";
 
 export function assertPrivateDesktopRequest(request: Request): void {
   if (!privateRuntimeAvailable()) throw new Error("PRIVATE_RUNTIME_UNAVAILABLE");
-  const url = new URL(request.url);
-  if (url.hostname !== "127.0.0.1" && url.hostname !== "localhost") throw new Error("PRIVATE_RUNTIME_REQUIRED");
+  const host = request.headers.get("host") || new URL(request.url).host;
+  const hostname = host.startsWith("[") ? host.slice(1, host.indexOf("]")) : host.split(":")[0];
+  if (hostname !== "127.0.0.1" && hostname !== "localhost" && hostname !== "::1") throw new Error("PRIVATE_RUNTIME_REQUIRED");
   const origin = request.headers.get("origin");
-  if (origin && new URL(origin).origin !== url.origin) throw new Error("CROSS_ORIGIN_REJECTED");
+  if (origin && new URL(origin).host !== host) throw new Error("CROSS_ORIGIN_REJECTED");
   const fetchSite = request.headers.get("sec-fetch-site");
   if (fetchSite && fetchSite !== "same-origin" && fetchSite !== "none") throw new Error("CROSS_ORIGIN_REJECTED");
 }

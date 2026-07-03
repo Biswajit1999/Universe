@@ -1,64 +1,38 @@
-# Roadmap
+# Private product roadmap
 
-UNIVERSE is designed to grow into Biswajit's long-term private scientific intelligence system.
-This roadmap tracks the owner-controlled desktop product.
+## Delivered
 
-## v0.1 — MVP (this release) ✅
+- [x] Private repository, proprietary identity and no-index web metadata.
+- [x] Cinematic 3D command nexus with responsive and reduced-motion modes.
+- [x] Sandboxed Electron shell and Next standalone server bound to `127.0.0.1`.
+- [x] Windows-encrypted credentials and secret-redacted lifecycle diagnostics.
+- [x] Kepler, Vega, Newton, Muse and Atlas routing with bounded plans and streamed progress.
+- [x] Read-only NASA, arXiv and scientific tools with honest provenance labels.
+- [x] Cancellation and visible agent execution traces.
+- [x] AES-256-GCM explicit long-term memory with retrieval and deletion.
+- [x] Versioned plugin manifests, risk/capability declarations and encrypted state.
+- [x] Atlas permission broker: native picker, selected-file reads, approved writes, backups and app allow-list.
+- [x] Partial voice transcription, TTS, interruption and opt-in hands-free loop.
+- [x] Unit coverage for physics, templates, Markdown, routing, encryption, credentials and operator policy.
 
-- 15 pages, responsive shell with mobile drawer, dark/light theme.
-- "Hey Universe" assistant with live (Gemini) + labelled offline mock.
-- **Voice input** (Web Speech API) and **⌘K/Ctrl+K** global shortcut.
-- Live-ready wrappers: NASA APOD, NEO, Exoplanet Archive, arXiv.
-- 8 simulators (orbital, gravity, blackbody, transit, SNR, PID, thermal, SIR).
-- 4 deep worlds with interactive modules (astronomy, physics, mathematics, AI);
-  Biology + Engineering + Personal worlds also carry working interactive modules.
-- Research Copilot + Writing Studio template engines with Markdown export.
-- Interactive Knowledge Graph, Daily Briefing, Personal Vault (Firestore + local).
-- Editable identity, route-level error boundary, robots + sitemap.
-- Installable PWA with an offline service worker.
-- **22 unit tests** over the pure models and generators (`npm test`).
-- Honest data labelling throughout; full Demo Mode with zero keys.
+## Next engineering releases
 
-## v0.2 — Live data depth
+- [ ] Code-sign the Windows installer with Biswajit's certificate and configure a private update feed.
+- [ ] Replace encrypted JSON collections with encrypted SQLite when record volume requires indexing.
+- [ ] Add owner-approved document ingestion for PDF/DOCX with local chunking and citations.
+- [ ] Add project/session working memory and editable memory provenance.
+- [ ] Add local Ollama as an optional offline model provider.
+- [ ] Add streaming model tokens while preserving the current event stream.
+- [ ] Add signed third-party plugin packages with integrity verification and migrations.
+- [ ] Add more Atlas capabilities one at a time: save-as, folder-scoped project access and configurable app allow-list.
+- [ ] Evaluate an offline wake-word engine. Continuous microphone monitoring stays disabled until its privacy and battery cost are explicit.
+- [ ] Add high-quality local TTS voices and input/output device selection.
+- [ ] Add NOAA SWPC, Gaia TAP, MAST/TESS, USGS and OpenAlex connectors.
 
-- [ ] **Gaia TAP** live cone-search execution + result pagination.
-- [ ] **MAST/TESS** real light-curve retrieval (FITS/JSON parsing) alongside the synthetic lab.
-- [ ] **USGS** live earthquake feed for Earth Systems.
-- [ ] **NOAA SWPC** live space-weather card.
-- [ ] **GitHub** live activity card (public events).
-- [ ] Streaming AI responses in the assistant.
+## Permanent non-goals
 
-## v0.3 — Voice & PWA
-
-- [x] Real "Hey Universe" **voice** input (Web Speech API).
-- [x] **Service worker** for offline caching of demo data and shell.
-- [ ] Optional **TTS** replies (assistant reads answers aloud).
-- [ ] "Hey Universe" **wake word** (always-listening, opt-in).
-- [ ] Installable app polish (raster icons at all sizes, splash screens).
-
-## v0.4 — Deeper science
-
-- [ ] React Three Fiber 3D hero scenes per world (currently symbolic SVG).
-- [ ] Biology: working SIR epidemiology model + protein-structure viewer.
-- [ ] Earth Systems: live climate indicators, satellite tiles (NASA GIBS).
-- [ ] Engineering: interactive circuit/electronics dashboard.
-- [ ] Observation Planner (airmass, visibility) in Astronomy.
-
-## v0.5 — Knowledge & collaboration
-
-- [ ] Full-text search across worlds, datasets and the Vault.
-- [ ] Shareable research plans and public Vault items.
-- [ ] Citation manager (ADS/OpenAlex) with BibTeX export.
-- [ ] Multi-provider AI (OpenAI, local Ollama) selectable in Settings.
-
-## v1.0 — Platform
-
-- [ ] Plugin/module API so the community can add worlds and data sources.
-- [ ] Notebook-style workspaces that combine data, simulations and writing.
-- [ ] Accounts, teams, and synced multi-device workspaces.
-- [ ] Comprehensive test suite + CI.
-
-## Non-goals
-
-- Presenting simulated or demo output as authoritative real-world data — ever.
-- Becoming a public SaaS. UNIVERSE stays private, owner-controlled and local-first.
+- Generic terminal or arbitrary command execution for an AI model.
+- Silent long-term memory collection.
+- Unreviewed plugin permissions or auto-enabled capability expansion.
+- Presenting simulated/demo output as live evidence.
+- Becoming a public SaaS or community plugin marketplace.

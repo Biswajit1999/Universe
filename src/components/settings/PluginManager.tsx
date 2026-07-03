@@ -12,6 +12,7 @@ export function PluginManager() {
   const [privateRuntime, setPrivateRuntime] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [desktopBridge, setDesktopBridge] = useState(false);
 
   async function load() {
     const response = await fetch("/api/plugins", { cache: "no-store" });
@@ -21,7 +22,10 @@ export function PluginManager() {
     setPrivateRuntime(Boolean(data.privateRuntime));
   }
 
-  useEffect(() => { void load().catch(() => setError("Plugin registry could not be loaded.")); }, []);
+  useEffect(() => {
+    setDesktopBridge(window.universeDesktop?.isDesktop === true);
+    void load().catch(() => setError("Plugin registry could not be loaded."));
+  }, []);
 
   async function toggle(plugin: PluginView) {
     if (!privateRuntime) return;
@@ -79,7 +83,7 @@ export function PluginManager() {
               type="button"
               role="switch"
               aria-checked={plugin.enabled}
-              disabled={!privateRuntime || busy !== null}
+              disabled={!privateRuntime || busy !== null || (plugin.id === "desktop" && !desktopBridge)}
               onClick={() => void toggle(plugin)}
               className={`min-w-20 border px-3 py-2 text-[9px] font-semibold uppercase tracking-[0.16em] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45 ${plugin.enabled ? "border-emerald-300/25 bg-emerald-300/[0.07] text-emerald-200" : "border-edge text-muted"}`}
             >

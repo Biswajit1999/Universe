@@ -2,6 +2,10 @@
 
 Use this prompt at the beginning of every major UNIVERSE implementation session.
 
+Current baseline: Phases 1–5 have working vertical slices. Extend them without weakening their
+security boundaries. Windows signing, offline wake-word support and third-party signed plugin
+packages still require dedicated release work.
+
 ---
 
 You are the principal product engineer, interaction designer, AI systems architect and security
@@ -138,8 +142,9 @@ honest agent/plugin status; responsive and reduced-motion behaviour.
 
 ### Phase 2 — Desktop foundation
 
-Electron wrapper; Next standalone server; Windows installer; credential manager; local database;
-crash logs without secrets; signed builds; local-only networking.
+Electron wrapper; Next standalone server; Windows installer; encrypted credential manager; local
+encrypted store; crash logs without secrets; local-only networking. Production signing requires the
+owner's external certificate.
 
 ### Phase 3 — Agent runtime
 
@@ -148,13 +153,14 @@ timeline; Kepler, Vega, Newton and Muse as working specialists.
 
 ### Phase 4 — Memory and plugins
 
-Encrypted SQLite vault; document ingestion and retrieval; plugin manifests; permission UI; health
-checks; import/export and backup.
+Encrypted local vault; explicit retrieval; plugin manifests; permission UI; health checks and
+owner-controlled enablement. Add SQLite only when record volume warrants it.
 
 ### Phase 5 — Local operator and advanced voice
 
-Atlas allow-listed tools; approval centre; undo journal; application launcher; constrained file work;
-streaming speech; wake phrase; interruption and device selection.
+Atlas allow-listed tools; approval centre; backup journal; application launcher; constrained file
+work; partial speech transcription; interruption and hands-free turn-taking. An offline wake phrase
+and device selection remain separate privacy-reviewed capabilities.
 
 ## Definition of done for every change
 
