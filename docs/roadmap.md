@@ -2,7 +2,7 @@
 
 ## Delivered
 
-- [x] Private repository, proprietary identity and no-index web metadata.
+- [x] Public source visibility, proprietary identity and no-index web metadata.
 - [x] Cinematic 3D command nexus with responsive and reduced-motion modes.
 - [x] Sandboxed Electron shell and Next standalone server bound to `127.0.0.1`.
 - [x] Windows-encrypted credentials and secret-redacted lifecycle diagnostics.

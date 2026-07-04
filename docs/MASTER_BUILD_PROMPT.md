@@ -137,7 +137,7 @@ continuous cloud microphone streaming unless the owner explicitly enables it.
 
 ### Phase 1 — Private nexus
 
-Private repository and proprietary metadata; cinematic command deck; upgraded 3D core; voice entry;
+Public source repository with proprietary metadata; cinematic command deck; upgraded 3D core; voice entry;
 honest agent/plugin status; responsive and reduced-motion behaviour.
 
 ### Phase 2 — Desktop foundation

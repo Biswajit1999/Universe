@@ -8,7 +8,7 @@ interface SpeechRecognitionLike {
   stop: () => void;
   abort?: () => void;
   onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal?: boolean }> }) => void) | null;
-  onerror: ((e: unknown) => void) | null;
+  onerror: ((e: { error?: string }) => void) | null;
   onend: (() => void) | null;
 }
 
@@ -39,12 +39,25 @@ export interface SpeechSession {
   cancel: () => void;
 }
 
+export interface VoiceOption {
+  name: string;
+  lang: string;
+  voiceURI: string;
+  localService: boolean;
+}
+
+export interface SpeechPreferences {
+  voiceURI?: string;
+  rate?: number;
+  pitch?: number;
+}
+
 /** Start one-shot dictation and return the final transcript. */
 export function startVoice(handlers: {
   onText: (text: string) => void;
   onPartial?: (text: string) => void;
   onEnd?: () => void;
-  onError?: () => void;
+  onError?: (code: string) => void;
 }): VoiceSession | null {
   const Ctor = getRecognitionCtor();
   if (!Ctor) return null;
@@ -61,7 +74,7 @@ export function startVoice(handlers: {
     if (last?.isFinal === false) handlers.onPartial?.(transcript.trim());
     else handlers.onText(transcript.trim());
   };
-  recognition.onerror = () => handlers.onError?.();
+  recognition.onerror = (event) => handlers.onError?.(event.error ?? "unknown");
   recognition.onend = () => handlers.onEnd?.();
   try {
     recognition.start();
@@ -69,6 +82,22 @@ export function startVoice(handlers: {
     return null;
   }
   return { stop: () => (recognition.abort ? recognition.abort() : recognition.stop()) };
+}
+
+export function getEnglishVoices(): VoiceOption[] {
+  if (!isSpeechSupported()) return [];
+  return window.speechSynthesis.getVoices()
+    .filter((voice) => voice.lang.toLowerCase().startsWith("en"))
+    .map((voice) => ({ name: voice.name, lang: voice.lang, voiceURI: voice.voiceURI, localService: voice.localService }));
+}
+
+function scoreVoice(voice: SpeechSynthesisVoice): number {
+  const name = voice.name.toLowerCase();
+  let score = voice.localService ? 10 : 0;
+  if (/natural|neural|online/.test(name)) score += 80;
+  if (/sonia|libby|jenny|aria|guy|ryan/.test(name)) score += 35;
+  if (voice.lang.toLowerCase() === "en-gb") score += 8;
+  return score;
 }
 
 /** Convert visual Markdown and common LaTeX into calmer speech-friendly text. */
@@ -100,6 +129,7 @@ export function toSpeechText(markdown: string): string {
 export function speakText(
   markdown: string,
   handlers: { onStart?: () => void; onEnd?: () => void; onError?: () => void } = {},
+  preferences: SpeechPreferences = {},
 ): SpeechSession | null {
   if (!isSpeechSupported()) return null;
   window.speechSynthesis.cancel();
@@ -107,10 +137,12 @@ export function speakText(
   const utterance = new SpeechSynthesisUtterance(toSpeechText(markdown));
   const voices = window.speechSynthesis.getVoices();
   const englishVoices = voices.filter((voice) => voice.lang.toLowerCase().startsWith("en"));
-  utterance.voice = englishVoices.find((voice) => voice.localService) ?? englishVoices[0] ?? null;
+  utterance.voice = englishVoices.find((voice) => voice.voiceURI === preferences.voiceURI)
+    ?? [...englishVoices].sort((left, right) => scoreVoice(right) - scoreVoice(left))[0]
+    ?? null;
   utterance.lang = utterance.voice?.lang ?? "en-GB";
-  utterance.rate = 0.96;
-  utterance.pitch = 0.92;
+  utterance.rate = Math.min(1.35, Math.max(0.7, preferences.rate ?? 1.02));
+  utterance.pitch = Math.min(1.3, Math.max(0.7, preferences.pitch ?? 1));
   utterance.volume = 1;
   utterance.onstart = () => handlers.onStart?.();
   utterance.onend = () => handlers.onEnd?.();

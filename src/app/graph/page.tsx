@@ -9,7 +9,7 @@ export default function GraphPage() {
       <PageHeader
         eyebrow="Everything connects"
         title="Knowledge Graph"
-        description="A living map of how UNIVERSE's domains, topics, instruments and your own research relate. Click any node to open it and ask a question."
+        description="A living 3D constellation of how UNIVERSE's domains, topics, instruments and your own research relate. Focus a node to trace its links and open an intelligence channel."
       />
       <KnowledgeGraph />
     </div>

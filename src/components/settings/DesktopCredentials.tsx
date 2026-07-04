@@ -9,7 +9,7 @@ type SecretName = UniverseSecretStatus["name"];
 const DEFINITIONS: Array<{ name: SecretName; label: string; detail: string }> = [
   { name: "GEMINI_API_KEY", label: "Gemini intelligence", detail: "Voice, research and agent synthesis" },
   { name: "NASA_API_KEY", label: "NASA data", detail: "APOD and near-Earth object feeds" },
-  { name: "GITHUB_TOKEN", label: "GitHub", detail: "Private repository and higher API limits" },
+  { name: "GITHUB_TOKEN", label: "GitHub", detail: "Repository access and higher API limits" },
 ];
 
 export function DesktopCredentials() {

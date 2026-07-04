@@ -57,4 +57,11 @@ describe("Atlas permission broker", () => {
     await operator.setEnabled(true);
     await expect(operator.launchApplication("powershell")).rejects.toThrow("APPLICATION_NOT_ALLOWED");
   });
+
+  it("launches an allow-listed music service after one-time Atlas enablement", async () => {
+    const { operator, messages } = fixture();
+    await operator.setEnabled(true);
+    await expect(operator.launchApplication("spotify")).resolves.toMatchObject({ launched: true, cancelled: false });
+    expect(messages.filter((message) => message.title === "Approve application launch")).toHaveLength(0);
+  });
 });
