@@ -1,7 +1,7 @@
 /** Shared types across UNIVERSE. */
 
 /** Every piece of data in the UI carries an honest provenance label. */
-export type DataMode = "demo" | "live" | "estimated" | "simulated";
+export type DataMode = "demo" | "live" | "local" | "estimated" | "simulated";
 
 export interface AIMessage {
   role: "user" | "assistant";

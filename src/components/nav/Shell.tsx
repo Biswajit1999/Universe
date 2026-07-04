@@ -148,7 +148,7 @@ export function Shell({ children }: { children: ReactNode }) {
         <main className="mx-auto w-full max-w-[1600px] flex-1 px-3 py-4 sm:px-5 lg:px-6">{children}</main>
 
         <footer className="border-t border-cyan-300/10 px-4 py-4 text-center text-[10px] uppercase tracking-[0.12em] text-cyan-100/35">
-          UNIVERSE · Personal Intelligence System · Data labelled Demo / Live / Estimated / Simulated ·{" "}
+          UNIVERSE · Personal Intelligence System · Data labelled Demo / Local / Live / Estimated / Simulated ·{" "}
           <Link href="/settings" className="underline">
             Science disclaimer
           </Link>

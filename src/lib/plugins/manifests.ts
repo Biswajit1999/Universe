@@ -1,4 +1,4 @@
-export type PluginId = "gemini" | "nasa" | "science" | "desktop";
+export type PluginId = "ollama" | "gemini" | "nasa" | "science" | "desktop";
 export type PluginRisk = "low" | "medium" | "high";
 
 export interface PluginManifest {
@@ -14,6 +14,17 @@ export interface PluginManifest {
 }
 
 export const PLUGIN_MANIFESTS: PluginManifest[] = [
+  {
+    id: "ollama",
+    name: "Ollama local intelligence",
+    version: "1.0.0",
+    description: "Private response synthesis using models installed on this PC through a loopback-only connection.",
+    scope: "local",
+    risk: "low",
+    defaultEnabled: true,
+    capabilities: ["network.loopback", "conversation.read", "compute.local"],
+    tools: ["list-local-models", "generate-local-response"],
+  },
   {
     id: "gemini",
     name: "Gemini intelligence",

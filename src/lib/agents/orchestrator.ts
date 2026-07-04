@@ -1,13 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { UNIVERSE_SYSTEM_PROMPT, withContext } from "@/lib/ai/prompts";
-import { generateGemini } from "@/lib/ai/gemini";
+import { generateConfiguredAI } from "@/lib/ai/configured";
 import { mockGenerate } from "@/lib/ai/mock";
 import { AGENT_PROFILES } from "./profiles";
 import { buildPlan } from "./plans";
 import { routeIntent } from "./router";
 import { runReadOnlyTools } from "./tools";
 import { searchMemory } from "@/lib/memory/repository";
-import { pluginEnabled } from "@/lib/plugins/repository";
 import type { AgentEvent, OrchestratorRequest } from "./types";
 
 function event(requestId: string, type: AgentEvent["type"], label: string, detail?: string): AgentEvent {
@@ -56,29 +55,31 @@ export async function* runOrchestrator(input: OrchestratorRequest, signal?: Abor
     : "";
   const prompt = `${withContext(input.prompt, input.context)}${toolContext}`;
   let response;
-  if (!input.demoMode && process.env.GEMINI_API_KEY && await pluginEnabled("gemini")) {
-    const generated = await generateGemini({
-      prompt,
-      history: input.history,
-      systemPrompt: `${UNIVERSE_SYSTEM_PROMPT}\n\nActive specialist: ${profile.name}, ${profile.role}. ${profile.systemFocus}`,
-      signal,
-    });
-    response = { text: generated.text, provider: generated.provider, mode: "live" as const };
-  } else if (agent === "system") {
+  if (agent === "system") {
     response = {
       text: `**Atlas prepared the request but did not execute it.**\n\n${tools[0]?.summary}\n\nOpen the approval centre in the desktop application once the requested capability is enabled.`,
       provider: "universe-policy",
       mode: "demo" as const,
     };
-  } else if (tools.some((tool) => tool.mode === "simulated")) {
-    const simulated = tools.filter((tool) => tool.mode === "simulated");
-    response = {
-      text: `## Newton simulation\n\n${simulated.map((tool) => tool.summary).join("\n\n")}\n\n**Provenance:** simulated locally with transparent first-order models. Verify assumptions before research or operational use.`,
-      provider: "universe-simulation",
-      mode: "simulated" as const,
-    };
   } else {
-    response = await mockGenerate({ prompt, context: input.context, history: input.history });
+    const generated = !input.demoMode ? await generateConfiguredAI({
+      prompt,
+      history: input.history,
+      systemPrompt: `${UNIVERSE_SYSTEM_PROMPT}\n\nActive specialist: ${profile.name}, ${profile.role}. ${profile.systemFocus}`,
+      signal,
+    }) : null;
+    if (generated) {
+      response = generated;
+    } else if (tools.some((tool) => tool.mode === "simulated")) {
+      const simulated = tools.filter((tool) => tool.mode === "simulated");
+      response = {
+        text: `## Newton simulation\n\n${simulated.map((tool) => tool.summary).join("\n\n")}\n\n**Provenance:** simulated locally with transparent first-order models. Verify assumptions before research or operational use.`,
+        provider: "universe-simulation",
+        mode: "simulated" as const,
+      };
+    } else {
+      response = await mockGenerate({ prompt, context: input.context, history: input.history });
+    }
   }
 
   assertActive(signal);

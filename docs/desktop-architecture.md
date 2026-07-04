@@ -49,6 +49,10 @@ names resemble secrets, tokens, passwords or API keys are replaced with `[redact
 
 ## Distribution
 
+Local model requests are server-side and restricted to unauthenticated loopback HTTP. The packaged
+application stores the selected provider and Ollama model inside the AES-256-GCM desktop store.
+Choosing `ollama` is fail-closed: UNIVERSE does not send the prompt to Gemini when local generation fails.
+
 `npm run desktop:package` creates an NSIS installer. A trusted public/private distribution still
 requires a Windows code-signing certificate and a private update feed; those are external release
 credentials, not values that belong in Git.

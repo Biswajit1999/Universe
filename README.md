@@ -21,7 +21,7 @@ explicit encrypted memory, plugins, simulations, writing tools and voice-to-voic
 - **Command nexus:** responsive React Three Fiber core, radar/orbital motion, telemetry, agents and plugin status.
 - **Voice:** live partial transcription, spoken replies, interruption and an opt-in hands-free conversation loop.
 - **Agents:** Universe routes to Kepler, Vega, Newton, Muse or Atlas with streamed plans, progress, tools and cancellation.
-- **Scientific tools:** Gemini, NASA, arXiv, constants, transparent simulations and labelled offline fallbacks.
+- **Scientific tools:** local Ollama models, Gemini, NASA, arXiv, constants, transparent simulations and labelled offline fallbacks.
 - **Private credentials:** Gemini/NASA/GitHub keys encrypted with Electron `safeStorage`; values are never readable from React.
 - **Memory:** explicit-only AES-256-GCM records with search, deletion and a per-conversation Memory toggle.
 - **Plugins:** versioned manifests, risk levels, declared capabilities and encrypted enable/disable state.
@@ -64,6 +64,19 @@ NASA_API_KEY=replace_me
 
 Never commit `.env.local`, keys, tokens, passwords, memory exports or personal files.
 
+## Private local AI with Ollama
+
+[Ollama](https://ollama.com/download/windows) is optional. Install it on Windows, then download one model:
+
+```powershell
+ollama pull gemma3:4b
+```
+
+Start the packaged UNIVERSE app and open **Settings → Local intelligence**. Select the model and
+choose **Local only** to guarantee that a failed local request never falls through to Gemini.
+**Local first** can use Gemini as an explicit fallback. UNIVERSE accepts Ollama only over loopback
+HTTP (`127.0.0.1`, `localhost`, or `::1`); remote model servers are rejected.
+
 ## Security boundaries
 
 ```text
@@ -88,6 +101,7 @@ npm test
 npx tsc --noEmit
 npm run build
 npm run desktop:dir
+npm run desktop:package
 ```
 
 ## Product direction
