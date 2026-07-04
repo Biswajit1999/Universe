@@ -6,6 +6,7 @@ import { useSettings } from "@/lib/state/settings";
 import { DesktopCredentials } from "@/components/settings/DesktopCredentials";
 import { PluginManager } from "@/components/settings/PluginManager";
 import { LocalModelSettings } from "@/components/settings/LocalModelSettings";
+import { VoiceSettings } from "@/components/settings/VoiceSettings";
 
 export function Settings() {
   const { demoMode, setDemoMode, theme, toggleTheme, userName, setUserName } = useSettings();
@@ -29,6 +30,8 @@ export function Settings() {
       <DesktopCredentials />
 
       <LocalModelSettings />
+
+      <VoiceSettings />
 
       <PluginManager />
 

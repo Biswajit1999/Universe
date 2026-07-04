@@ -80,7 +80,7 @@ function Telemetry({ desktop }: { desktop: boolean }) {
       <div className="space-y-3 py-3">
         <Gauge label="Intelligence" value={92} detail="Gemini reasoning link" />
         <Gauge label="Knowledge" value={78} detail="Scientific context loaded" />
-        <Gauge label="Privacy" value={100} detail="Private repository" />
+        <Gauge label="Privacy" value={100} detail="Local data boundary" />
       </div>
       <div className="hud-divider" />
       <div className="space-y-2 pt-3">

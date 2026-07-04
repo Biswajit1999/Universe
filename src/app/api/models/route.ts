@@ -9,15 +9,15 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   const privateRuntime = privateRuntimeAvailable();
   if (!privateRuntime) {
-    return Response.json({ privateRuntime: false, ollamaOnline: false, models: [], settings: await getAISettings() });
+    return Response.json({ privateRuntime: false, ollamaOnline: false, geminiConfigured: Boolean(process.env.GEMINI_API_KEY), models: [], settings: await getAISettings() });
   }
   try {
     assertPrivateDesktopRequest(request);
     const [settings, models] = await Promise.all([getAISettings(), listOllamaModels(request.signal)]);
-    return Response.json({ privateRuntime: true, ollamaOnline: true, models, settings });
+    return Response.json({ privateRuntime: true, ollamaOnline: true, geminiConfigured: Boolean(process.env.GEMINI_API_KEY), models, settings });
   } catch (error) {
     if (String(error).includes("PRIVATE_RUNTIME") || String(error).includes("CROSS_ORIGIN")) return privateRuntimeError(error);
-    return Response.json({ privateRuntime: true, ollamaOnline: false, models: [], settings: await getAISettings() });
+    return Response.json({ privateRuntime: true, ollamaOnline: false, geminiConfigured: Boolean(process.env.GEMINI_API_KEY), models: [], settings: await getAISettings() });
   }
 }
 

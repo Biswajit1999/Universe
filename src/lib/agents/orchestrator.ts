@@ -37,7 +37,7 @@ export async function* runOrchestrator(input: OrchestratorRequest, signal?: Abor
     summary: memory.map((record) => `${record.title}: ${record.content.slice(0, 900)}`).join("\n"),
     data: memory.map((record) => ({ id: record.id, title: record.title, tags: record.tags })),
   }] : [];
-  const tools = [...memoryTool, ...await runReadOnlyTools(agent, input.prompt, signal)];
+  const tools = [...memoryTool, ...await runReadOnlyTools(agent, withContext(input.prompt, input.context), signal)];
   for (const tool of tools) {
     assertActive(signal);
     yield { ...event(requestId, "tool-start", `Calling ${tool.label}`), agent, tool: { ...tool, summary: "" } };
@@ -76,6 +76,13 @@ export async function* runOrchestrator(input: OrchestratorRequest, signal?: Abor
         text: `## Newton simulation\n\n${simulated.map((tool) => tool.summary).join("\n\n")}\n\n**Provenance:** simulated locally with transparent first-order models. Verify assumptions before research or operational use.`,
         provider: "universe-simulation",
         mode: "simulated" as const,
+      };
+    } else if (tools.some((tool) => tool.mode === "live" || tool.mode === "local")) {
+      const evidence = tools.filter((tool) => tool.mode === "live" || tool.mode === "local");
+      response = {
+        text: evidence.map((tool) => `## ${tool.label}\n\n${tool.summary}`).join("\n\n"),
+        provider: "universe-tools",
+        mode: evidence[0].mode === "local" ? "local" as const : "live" as const,
       };
     } else {
       response = await mockGenerate({ prompt, context: input.context, history: input.history });

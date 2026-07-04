@@ -74,6 +74,59 @@ function constants(): AgentToolResult {
   };
 }
 
+const WEATHER_CODES: Record<number, string> = {
+  0: "clear sky", 1: "mainly clear", 2: "partly cloudy", 3: "overcast",
+  45: "fog", 48: "freezing fog", 51: "light drizzle", 53: "drizzle", 55: "heavy drizzle",
+  61: "light rain", 63: "rain", 65: "heavy rain", 71: "light snow", 73: "snow", 75: "heavy snow",
+  80: "light rain showers", 81: "rain showers", 82: "heavy rain showers", 85: "snow showers", 86: "heavy snow showers",
+  95: "thunderstorm", 96: "thunderstorm with hail", 99: "severe thunderstorm with hail",
+};
+
+function weatherLocation(prompt: string): string | null {
+  const explicit = prompt.match(/\b(?:weather|forecast|temperature|rain|snow|wind)(?:\s+(?:today|tomorrow|this week))?\s+(?:in|for|at)\s+([a-z][a-z .'-]{1,70})/i)?.[1];
+  const home = prompt.match(/home location:\s*([a-z][a-z .'-]{1,70})/i)?.[1];
+  const value = (explicit ?? home)?.replace(/\b(?:today|tomorrow|this week|please)\b.*$/i, "").replace(/[.?!]+$/, "").trim();
+  return value && value.length >= 2 ? value : null;
+}
+
+async function liveWeather(prompt: string, signal?: AbortSignal): Promise<AgentToolResult | null> {
+  const location = weatherLocation(prompt);
+  if (!location) return null;
+  const geocodeUrl = new URL("https://geocoding-api.open-meteo.com/v1/search");
+  geocodeUrl.search = new URLSearchParams({ name: location, count: "1", language: "en", format: "json" }).toString();
+  const geocodeResponse = await fetch(geocodeUrl, { signal, cache: "no-store" });
+  if (!geocodeResponse.ok) throw new Error(`Weather location lookup failed (${geocodeResponse.status}).`);
+  const geocode = await geocodeResponse.json() as { results?: Array<{ name: string; country?: string; admin1?: string; latitude: number; longitude: number }> };
+  const place = geocode.results?.[0];
+  if (!place) return {
+    tool: "weather.open-meteo",
+    label: "Live weather",
+    mode: "live",
+    summary: `I could not find “${location}”. Try a city name or postcode.`,
+  };
+
+  const forecastUrl = new URL("https://api.open-meteo.com/v1/forecast");
+  forecastUrl.search = new URLSearchParams({
+    latitude: String(place.latitude), longitude: String(place.longitude), timezone: "auto", forecast_days: "2",
+    current: "temperature_2m,apparent_temperature,weather_code,wind_speed_10m,precipitation",
+    daily: "temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code",
+  }).toString();
+  const forecastResponse = await fetch(forecastUrl, { signal, cache: "no-store" });
+  if (!forecastResponse.ok) throw new Error(`Weather forecast failed (${forecastResponse.status}).`);
+  const forecast = await forecastResponse.json() as {
+    current?: { temperature_2m?: number; apparent_temperature?: number; weather_code?: number; wind_speed_10m?: number; precipitation?: number };
+    current_units?: Record<string, string>;
+    daily?: { time?: string[]; temperature_2m_max?: number[]; temperature_2m_min?: number[]; precipitation_probability_max?: number[]; weather_code?: number[] };
+  };
+  const current = forecast.current;
+  const daily = forecast.daily;
+  const area = [place.name, place.admin1, place.country].filter(Boolean).join(", ");
+  const condition = WEATHER_CODES[current?.weather_code ?? -1] ?? "mixed conditions";
+  const tomorrowCondition = WEATHER_CODES[daily?.weather_code?.[1] ?? -1] ?? "mixed conditions";
+  const summary = `**${area}:** ${condition}, ${current?.temperature_2m ?? "—"}°C (feels like ${current?.apparent_temperature ?? "—"}°C), wind ${current?.wind_speed_10m ?? "—"} km/h. Today: ${daily?.temperature_2m_min?.[0] ?? "—"}–${daily?.temperature_2m_max?.[0] ?? "—"}°C with up to ${daily?.precipitation_probability_max?.[0] ?? "—"}% precipitation probability. Tomorrow: ${tomorrowCondition}, ${daily?.temperature_2m_min?.[1] ?? "—"}–${daily?.temperature_2m_max?.[1] ?? "—"}°C. Source: Open-Meteo live forecast.`;
+  return { tool: "weather.open-meteo", label: "Live weather", mode: "live", summary, data: { place, current, daily } };
+}
+
 function astronomicalUnits(prompt: string): number | null {
   const numeric = prompt.match(/(\d+(?:\.\d+)?)\s*(?:au\b|astronomical units?)/i)?.[1];
   if (numeric) return Number(numeric);
@@ -105,6 +158,14 @@ export async function runReadOnlyTools(agent: AgentId, prompt: string, signal?: 
   }];
 
   const selected: Array<Promise<AgentToolResult> | AgentToolResult> = [];
+  if (agent === "data" && /\b(weather|forecast|temperature|rain|snow|wind)\b/i.test(prompt)) {
+    try {
+      const weather = await liveWeather(prompt, signal);
+      if (weather) selected.push(weather);
+    } catch (error) {
+      if ((error as Error).name === "AbortError") throw error;
+    }
+  }
   if (agent === "data" && /\b(apod|picture of the day|today.*space|nasa image)\b/i.test(prompt) && await pluginEnabled("nasa")) selected.push(nasaApod(signal));
   if (agent === "data" && /\b(arxiv|latest paper|preprint)\b/i.test(prompt)) selected.push(latestArxiv(signal));
   if (agent === "simulation" && await pluginEnabled("science")) {

@@ -119,28 +119,37 @@ function createOperator({ stateFile, backupDirectory, dialog, shell, diagnostics
   }
 
   const applications = [
-    { id: "notepad", name: "Notepad" },
-    { id: "calculator", name: "Calculator" },
+    { id: "notepad", name: "Notepad", requiresConfirmation: true },
+    { id: "calculator", name: "Calculator", requiresConfirmation: true },
+    { id: "spotify", name: "Spotify", requiresConfirmation: false },
+    { id: "youtube-music", name: "YouTube Music", requiresConfirmation: false },
   ];
 
   async function launchApplication(id) {
     assertEnabled();
     const application = applications.find((candidate) => candidate.id === id);
     if (!application) throw new Error("APPLICATION_NOT_ALLOWED");
-    const result = await dialog.showMessageBox(getWindow(), {
-      type: "question",
-      buttons: ["Launch", "Cancel"],
-      defaultId: 1,
-      cancelId: 1,
-      noLink: true,
-      title: "Approve application launch",
-      message: `Allow Atlas to launch ${application.name}?`,
-      detail: "Only applications on your UNIVERSE allow-list can be opened.",
-    });
-    if (result.response !== 0) return { launched: false, cancelled: true };
-    const error = id === "calculator"
-      ? await shell.openExternal("calculator:").then(() => "").catch((reason) => String(reason))
-      : await shell.openPath(path.join(process.env.SystemRoot || "C:\\Windows", "System32", "notepad.exe"));
+    if (application.requiresConfirmation) {
+      const result = await dialog.showMessageBox(getWindow(), {
+        type: "question",
+        buttons: ["Launch", "Cancel"],
+        defaultId: 1,
+        cancelId: 1,
+        noLink: true,
+        title: "Approve application launch",
+        message: `Allow Atlas to launch ${application.name}?`,
+        detail: "Only applications on your UNIVERSE allow-list can be opened.",
+      });
+      if (result.response !== 0) return { launched: false, cancelled: true };
+    }
+    let error = "";
+    if (id === "calculator") error = await shell.openExternal("calculator:").then(() => "").catch((reason) => String(reason));
+    else if (id === "notepad") error = await shell.openPath(path.join(process.env.SystemRoot || "C:\\Windows", "System32", "notepad.exe"));
+    else if (id === "youtube-music") error = await shell.openExternal("https://music.youtube.com").then(() => "").catch((reason) => String(reason));
+    else {
+      error = await shell.openExternal("spotify:").then(() => "").catch((reason) => String(reason));
+      if (error) error = await shell.openExternal("https://open.spotify.com").then(() => "").catch((reason) => String(reason));
+    }
     if (error) throw new Error("APPLICATION_LAUNCH_FAILED");
     diagnostics.write("operator.application-launched", { id });
     return { launched: true, cancelled: false };
@@ -152,7 +161,7 @@ function createOperator({ stateFile, backupDirectory, dialog, shell, diagnostics
     pickTextFile,
     readSelectedFile,
     writeSelectedFile,
-    listApplications: () => applications,
+    listApplications: () => applications.map(({ id, name }) => ({ id, name })),
     launchApplication,
   });
 }

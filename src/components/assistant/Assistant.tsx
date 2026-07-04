@@ -34,26 +34,27 @@ import { Badge } from "@/components/ui/Badge";
 import { Markdown } from "@/components/ui/Markdown";
 import type { AIMessage, AIResponse } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { matchDesktopCommand } from "@/lib/desktop/commands";
 
 const SUGGESTIONS = [
-  "Explain the transit method",
-  "Generate a research idea",
-  "Draft a supervisor update",
-  "What if gravity were 5% weaker?",
+  "What is the weather in London?",
+  "Turn on some music",
+  "Explain quantum computing simply",
+  "Plan my day",
 ];
 
 type VoicePhase = "idle" | "listening" | "thinking" | "speaking" | "error";
 
 const VOICE_STATUS: Record<VoicePhase, { title: string; detail: string }> = {
-  idle: { title: "Voice link ready", detail: "Tap the core and ask Universe anything" },
-  listening: { title: "Listening", detail: "Speak naturally — your question sends automatically" },
+  idle: { title: "Voice link ready", detail: "Activate once, then continue without clicking between turns" },
+  listening: { title: "Listening continuously", detail: "Speak naturally — your question sends automatically" },
   thinking: { title: "Analysing", detail: "Universe is resolving your request" },
   speaking: { title: "Universe responding", detail: "Tap the core to stop playback" },
   error: { title: "Voice link interrupted", detail: "Check microphone permission and try again" },
 };
 
 export function Assistant() {
-  const { demoMode } = useSettings();
+  const { demoMode, homeCity, voiceURI, voiceRate, voicePitch, handsFree, setHandsFree } = useSettings();
   const { add } = useVault();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -69,8 +70,8 @@ export function Assistant() {
   const [trace, setTrace] = useState<AgentEvent[]>([]);
   const [activeAgent, setActiveAgent] = useState<AgentId>("core");
   const [desktopAvailable, setDesktopAvailable] = useState(false);
+  const [knowledgeReady, setKnowledgeReady] = useState<boolean | null>(null);
   const [memoryEnabled, setMemoryEnabled] = useState(false);
-  const [handsFree, setHandsFree] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const voiceRef = useRef<VoiceSession | null>(null);
@@ -79,6 +80,9 @@ export function Assistant() {
   const beginListeningRef = useRef<() => void>(() => {});
   const handsFreeRef = useRef(false);
   const voiceModeRef = useRef(false);
+  const thinkingRef = useRef(false);
+  const manualStopRef = useRef(false);
+  const listenRetryRef = useRef<number | null>(null);
 
   useEffect(() => {
     setVoiceAvailable(isVoiceSupported() && isSpeechSupported());
@@ -86,11 +90,30 @@ export function Assistant() {
   }, []);
 
   useEffect(() => {
+    let active = true;
+    void fetch("/api/models", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((status: { ollamaOnline?: boolean; geminiConfigured?: boolean; settings?: { provider?: string; ollamaModel?: string } }) => {
+        if (!active) return;
+        const local = Boolean(status.ollamaOnline && status.settings?.ollamaModel);
+        const cloud = Boolean(status.geminiConfigured);
+        const provider = status.settings?.provider ?? "auto";
+        setKnowledgeReady(provider === "ollama" ? local : provider === "gemini" ? cloud : local || cloud);
+      })
+      .catch(() => active && setKnowledgeReady(false));
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
     handsFreeRef.current = handsFree;
     voiceModeRef.current = voiceMode;
-  }, [handsFree, voiceMode]);
+    thinkingRef.current = thinking;
+  }, [handsFree, thinking, voiceMode]);
 
   const stopVoiceActivity = useCallback(() => {
+    manualStopRef.current = true;
+    if (listenRetryRef.current !== null) window.clearTimeout(listenRetryRef.current);
+    listenRetryRef.current = null;
     voiceRef.current?.stop();
     voiceRef.current = null;
     speechRef.current?.cancel();
@@ -101,6 +124,7 @@ export function Assistant() {
   }, []);
 
   const speakResponse = useCallback((text: string, messageIndex: number | null = null) => {
+    manualStopRef.current = false;
     speechRef.current?.cancel();
     setPlayingMessage(messageIndex);
     const session = speakText(text, {
@@ -108,7 +132,7 @@ export function Assistant() {
       onEnd: () => {
         setPlayingMessage(null);
         setVoicePhase("idle");
-        if (handsFreeRef.current && voiceModeRef.current) {
+        if (!manualStopRef.current && handsFreeRef.current && voiceModeRef.current) {
           window.setTimeout(() => beginListeningRef.current(), 320);
         }
       },
@@ -116,14 +140,14 @@ export function Assistant() {
         setPlayingMessage(null);
         setVoicePhase("error");
       },
-    });
+    }, { voiceURI, rate: voiceRate, pitch: voicePitch });
     if (!session) {
       setPlayingMessage(null);
       setVoicePhase("error");
       return;
     }
     speechRef.current = session;
-  }, []);
+  }, [voicePitch, voiceRate, voiceURI]);
 
   const send = useCallback(
     async (text: string, context?: string, forceVoice = false) => {
@@ -138,23 +162,46 @@ export function Assistant() {
       if (useVoice) setVoicePhase("thinking");
 
       const voiceContext = useVoice
-        ? `${context ? `${context}. ` : ""}Voice conversation: answer naturally in under 180 words unless the user asks for detail.`
-        : context;
+        ? `${context ? `${context}. ` : ""}${homeCity ? `Home location: ${homeCity}. ` : ""}Voice conversation: answer naturally in under 120 words unless the user asks for detail.`
+        : `${context ?? ""}${homeCity ? `${context ? ". " : ""}Home location: ${homeCity}.` : ""}` || undefined;
       requestRef.current?.abort();
       const controller = new AbortController();
       requestRef.current = controller;
       let response: AIResponse & { agent?: AgentId; requestId?: string };
       try {
-        response = await askOrchestrator(
-          { prompt: question, context: voiceContext, history, demoMode, useMemory: memoryEnabled },
-          {
-            signal: controller.signal,
-            onEvent: (event) => {
-              setTrace((current) => [...current.slice(-7), event]);
-              if (event.agent) setActiveAgent(event.agent);
+        const desktopCommand = matchDesktopCommand(question);
+        if (desktopCommand && window.universeDesktop) {
+          setActiveAgent("system");
+          try {
+            const result = await window.universeDesktop.operator.launchApplication(desktopCommand.appId);
+            response = {
+              text: result.launched
+                ? `**${desktopCommand.label} is open.** I can launch the service hands-free; selecting or controlling playback requires the service's media integration.`
+                : `I left ${desktopCommand.label} closed because the launch was cancelled.`,
+              provider: "atlas/allow-list",
+              mode: "local",
+              agent: "system",
+            };
+          } catch {
+            response = {
+              text: `**Atlas needs one-time permission.** Enable **Atlas desktop tools** in Settings, then say “${question}” again. Only allow-listed applications can be opened.`,
+              provider: "atlas/policy",
+              mode: "local",
+              agent: "system",
+            };
+          }
+        } else {
+          response = await askOrchestrator(
+            { prompt: question, context: voiceContext, history, demoMode, useMemory: memoryEnabled },
+            {
+              signal: controller.signal,
+              onEvent: (event) => {
+                setTrace((current) => [...current.slice(-7), event]);
+                if (event.agent) setActiveAgent(event.agent);
+              },
             },
-          },
-        );
+          );
+        }
       } catch (error) {
         if ((error as Error).name === "AbortError") {
           setThinking(false);
@@ -172,13 +219,21 @@ export function Assistant() {
       ]);
       setThinking(false);
       if (useVoice && autoSpeak) speakResponse(response.text, messageIndex);
-      else setVoicePhase("idle");
+      else {
+        setVoicePhase("idle");
+        if (useVoice && handsFreeRef.current && voiceModeRef.current && !manualStopRef.current) {
+          window.setTimeout(() => beginListeningRef.current(), 320);
+        }
+      }
     },
-    [autoSpeak, demoMode, memoryEnabled, messages, speakResponse, thinking, voiceMode],
+    [autoSpeak, demoMode, homeCity, memoryEnabled, messages, speakResponse, thinking, voiceMode],
   );
 
   const beginListening = useCallback(() => {
-    if (!voiceAvailable || thinking) return;
+    if (!voiceAvailable || thinkingRef.current) return;
+    manualStopRef.current = false;
+    if (listenRetryRef.current !== null) window.clearTimeout(listenRetryRef.current);
+    listenRetryRef.current = null;
     speechRef.current?.cancel();
     stopSpeech();
     setPlayingMessage(null);
@@ -201,12 +256,22 @@ export function Assistant() {
       },
       onEnd: () => {
         voiceRef.current = null;
-        if (!received && !failed) setVoicePhase("idle");
+        if (!received && !failed) {
+          setVoicePhase("idle");
+          if (!manualStopRef.current && handsFreeRef.current && voiceModeRef.current && !thinkingRef.current) {
+            listenRetryRef.current = window.setTimeout(() => beginListeningRef.current(), 450);
+          }
+        }
       },
-      onError: () => {
+      onError: (code) => {
         failed = true;
         voiceRef.current = null;
-        setVoicePhase("error");
+        if ((code === "no-speech" || code === "aborted") && !manualStopRef.current && handsFreeRef.current && voiceModeRef.current) {
+          setVoicePhase("idle");
+          listenRetryRef.current = window.setTimeout(() => beginListeningRef.current(), 650);
+        } else {
+          setVoicePhase("error");
+        }
       },
     });
     if (!session) {
@@ -214,7 +279,7 @@ export function Assistant() {
       return;
     }
     voiceRef.current = session;
-  }, [pendingContext, send, thinking, voiceAvailable]);
+  }, [pendingContext, send, voiceAvailable]);
 
   useEffect(() => {
     beginListeningRef.current = beginListening;
@@ -222,12 +287,14 @@ export function Assistant() {
 
   const handleVoiceCore = useCallback(() => {
     if (voicePhase === "listening") {
+      manualStopRef.current = true;
       voiceRef.current?.stop();
       voiceRef.current = null;
       setVoicePhase("idle");
       return;
     }
     if (voicePhase === "speaking") {
+      manualStopRef.current = true;
       speechRef.current?.cancel();
       stopSpeech();
       setPlayingMessage(null);
@@ -250,7 +317,10 @@ export function Assistant() {
       setOpen(true);
       setPendingContext(detail?.context);
       if (detail?.prompt) setTimeout(() => void send(detail.prompt!, detail.context), 50);
-      else setTimeout(() => inputRef.current?.focus(), 120);
+      else if (detail?.context?.toLowerCase().includes("voice")) {
+        setVoiceMode(true);
+        setTimeout(() => beginListeningRef.current(), 180);
+      } else setTimeout(() => inputRef.current?.focus(), 120);
     }
     window.addEventListener("universe:ask", onAsk);
     return () => window.removeEventListener("universe:ask", onAsk);
@@ -276,6 +346,8 @@ export function Assistant() {
 
   useEffect(
     () => () => {
+      manualStopRef.current = true;
+      if (listenRetryRef.current !== null) window.clearTimeout(listenRetryRef.current);
       voiceRef.current?.stop();
       speechRef.current?.cancel();
       requestRef.current?.abort();
@@ -289,7 +361,11 @@ export function Assistant() {
   return (
     <>
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setOpen(true);
+          setVoiceMode(true);
+          setTimeout(() => beginListeningRef.current(), 180);
+        }}
         aria-label="Open Hey Universe assistant"
         className="assistant-launcher fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full border border-sky-300/25 px-4 py-3 text-sm font-semibold text-ink shadow-2xl backdrop-blur-xl transition hover:scale-[1.03] hover:border-sky-300/55"
       >
@@ -313,7 +389,7 @@ export function Assistant() {
           role="dialog"
           aria-label="Hey Universe assistant"
           className={cn(
-            "assistant-console absolute right-0 top-0 flex h-full w-full max-w-xl flex-col overflow-hidden border-l border-sky-300/15 bg-[#050712]/95 shadow-[-32px_0_90px_rgba(0,0,0,0.5)] transition-transform duration-500",
+            "assistant-console absolute right-0 top-0 flex h-full w-full max-w-2xl flex-col overflow-hidden border-l border-sky-300/20 bg-[#030711]/97 shadow-[-42px_0_110px_rgba(0,0,0,0.62)] transition-transform duration-500",
             open ? "translate-x-0" : "translate-x-full",
           )}
         >
@@ -351,8 +427,13 @@ export function Assistant() {
                 <button
                   type="button"
                   onClick={() => {
-                    if (voiceMode) stopVoiceActivity();
-                    setVoiceMode((value) => !value);
+                    if (voiceMode) {
+                      stopVoiceActivity();
+                      setVoiceMode(false);
+                    } else {
+                      setVoiceMode(true);
+                      setTimeout(() => beginListeningRef.current(), 120);
+                    }
                   }}
                   aria-pressed={voiceMode}
                   className={cn(
@@ -367,8 +448,8 @@ export function Assistant() {
                 </button>
               )}
               <span className="hidden items-center gap-1 text-[10px] text-muted sm:flex">
-                <Radio size={11} className={demoMode ? "text-sky-300" : "text-emerald-300"} />
-                {demoMode ? "Demo" : "Live"}
+                <Radio size={11} className={knowledgeReady ? "text-emerald-300" : knowledgeReady === false ? "text-amber-300" : "text-sky-300"} />
+                {knowledgeReady ? "Knowledge online" : knowledgeReady === false ? "Core offline" : "Checking"}
               </span>
               <button onClick={closeAssistant} aria-label="Close" className="rounded-lg p-1.5 text-muted transition hover:bg-white/5 hover:text-ink">
                 <X size={18} />
@@ -396,9 +477,9 @@ export function Assistant() {
                   </button>
                 )}
               </div>
-              <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
+              <div className="mt-2 grid grid-cols-2 gap-1.5 sm:grid-cols-4">
                 {trace.slice(-5).map((item, index) => (
-                  <div key={`${item.type}-${item.at}-${index}`} className="min-w-[132px] border-l border-cyan-300/20 bg-cyan-300/[0.025] px-2 py-1.5">
+                  <div key={`${item.type}-${item.at}-${index}`} className="min-w-0 border-l border-cyan-300/20 bg-cyan-300/[0.025] px-2 py-1.5">
                     <p className="truncate text-[9px] text-cyan-50/75">{item.label}</p>
                     <p className="mt-0.5 text-[7px] uppercase tracking-wider text-slate-600">{item.type}</p>
                   </div>
@@ -410,6 +491,8 @@ export function Assistant() {
           {voiceMode && (
             <section className="assistant-voice-stage relative z-10 border-b border-sky-300/10 px-5 py-5 text-center">
               <div className="assistant-voice-horizon" />
+              <div className="assistant-voice-orbit orbit-a" />
+              <div className="assistant-voice-orbit orbit-b" />
               <button
                 type="button"
                 onClick={handleVoiceCore}
@@ -425,12 +508,18 @@ export function Assistant() {
                 </span>
               </button>
               <div className={cn("assistant-waveform mx-auto mt-5", voicePhase === "listening" || voicePhase === "speaking" ? "is-active" : "")} aria-hidden>
-                {Array.from({ length: 15 }, (_, index) => <span key={index} style={{ animationDelay: `${index * -0.07}s` }} />)}
+                {Array.from({ length: 25 }, (_, index) => <span key={index} style={{ animationDelay: `${index * -0.045}s` }} />)}
               </div>
               <div className="mt-3" role="status" aria-live="polite">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">{voiceStatus.title}</p>
                 <p className="mt-1 text-[11px] text-muted">{voiceTranscript && voicePhase !== "idle" ? `“${voiceTranscript}”` : voiceStatus.detail}</p>
               </div>
+              {knowledgeReady === false && (
+                <button type="button" onClick={() => { closeAssistant(); window.location.assign("/settings"); }}
+                  className="mt-3 border border-amber-300/25 bg-amber-300/[0.06] px-3 py-2 text-[9px] uppercase tracking-[0.16em] text-amber-100/80">
+                  Knowledge core offline · Configure Gemini or Ollama
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setAutoSpeak((value) => !value)}
@@ -442,7 +531,7 @@ export function Assistant() {
               </button>
               <button
                 type="button"
-                onClick={() => setHandsFree((value) => !value)}
+                onClick={() => setHandsFree(!handsFree)}
                 className={cn(
                   "ml-2 mt-3 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] transition",
                   handsFree ? "border-emerald-300/35 bg-emerald-300/[0.08] text-emerald-200" : "border-edge text-muted hover:text-ink",
@@ -450,12 +539,27 @@ export function Assistant() {
                 aria-pressed={handsFree}
                 title="After Universe finishes speaking, automatically listen for your next request."
               >
-                <Radio size={11} /> Hands-free loop {handsFree ? "on" : "off"}
+                <Radio size={11} /> Continuous link {handsFree ? "on" : "off"}
               </button>
             </section>
           )}
 
           <div ref={scrollRef} className="scroll-thin relative z-10 flex-1 space-y-4 overflow-y-auto px-4 py-4">
+            {messages.length === 0 && voiceMode && (
+              <div className="grid gap-2 sm:grid-cols-2">
+                {[
+                  ["LIVE WEATHER", "Ask for current conditions or a forecast in any city", "What is the weather in London?"],
+                  ["GENERAL KNOWLEDGE", knowledgeReady ? "Gemini or Ollama knowledge core is connected" : "Connect Gemini or Ollama in Settings", "Explain quantum computing simply"],
+                  ["MUSIC CHANNEL", "Open Spotify or YouTube Music through Atlas", "Turn on some music"],
+                  ["DESKTOP TOOLS", "Launch allow-listed apps and approved local actions", "Open calculator"],
+                ].map(([title, detail, prompt]) => (
+                  <button key={title} type="button" onClick={() => void send(prompt)} className="group border border-cyan-300/10 bg-cyan-300/[0.025] p-3 text-left transition hover:border-cyan-300/30 hover:bg-cyan-300/[0.055]">
+                    <span className="text-[9px] font-semibold tracking-[0.18em] text-cyan-200/75">{title}</span>
+                    <span className="mt-1 block text-[10px] leading-relaxed text-slate-500 group-hover:text-slate-400">{detail}</span>
+                  </button>
+                ))}
+              </div>
+            )}
             {messages.length === 0 && !voiceMode && (
               <div className="rounded-2xl border border-sky-300/10 bg-white/[0.025] p-4">
                 <p className="text-sm leading-relaxed text-muted">

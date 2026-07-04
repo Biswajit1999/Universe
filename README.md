@@ -19,17 +19,23 @@ explicit encrypted memory, plugins, simulations, writing tools and voice-to-voic
 ## Working capabilities
 
 - **Command nexus:** responsive React Three Fiber core, radar/orbital motion, telemetry, agents and plugin status.
-- **Voice:** live partial transcription, spoken replies, interruption and an opt-in hands-free conversation loop.
+- **Voice:** one-click activation, persistent turn-to-turn listening, selectable Windows voices, spoken replies and interruption.
 - **Agents:** Universe routes to Kepler, Vega, Newton, Muse or Atlas with streamed plans, progress, tools and cancellation.
-- **Scientific tools:** local Ollama models, Gemini, NASA, arXiv, constants, transparent simulations and labelled offline fallbacks.
+- **General tools:** live worldwide weather, allow-listed music/app launching, local Ollama models, Gemini, NASA, arXiv and transparent simulations.
+- **3D knowledge constellation:** interactive WebGL nodes, spatial links, focus tracing and cinematic node intelligence panels.
 - **Private credentials:** Gemini/NASA/GitHub keys encrypted with Electron `safeStorage`; values are never readable from React.
 - **Memory:** explicit-only AES-256-GCM records with search, deletion and a per-conversation Memory toggle.
 - **Plugins:** versioned manifests, risk levels, declared capabilities and encrypted enable/disable state.
 - **Atlas operator:** native file picker, token-scoped text reads, confirmed writes, private backups and two allow-listed apps.
 - **Audit:** secret-redacted lifecycle and Atlas event history.
-- **Privacy:** private GitHub repository, proprietary license, `noindex`, local server bound to `127.0.0.1`.
+- **Privacy:** public source visibility with a proprietary license, `noindex`, local data and a server bound to `127.0.0.1`.
 
 Atlas has no terminal, arbitrary command runner or unrestricted filesystem API.
+
+Broad general knowledge requires either a Gemini key or an installed Ollama model. The bundled demo
+provider is intentionally small and cannot behave like a general assistant. Live weather works without
+an API key through Open-Meteo. Music commands open an allow-listed service after Atlas has been enabled;
+account-level playback control is not claimed.
 
 ## Run locally
 
@@ -114,5 +120,5 @@ npm run desktop:package
 
 ## Ownership
 
-This repository and application are private. Redistribution, public deployment, copying and
-derivative use are prohibited without Biswajit Jana's written permission. See [LICENSE](LICENSE).
+This repository is publicly visible but remains proprietary software. Public source access does not
+grant permission to redistribute, deploy, copy or create derivative works. See [LICENSE](LICENSE).
