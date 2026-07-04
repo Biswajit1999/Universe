@@ -61,6 +61,7 @@ export interface UniversePlugin {
 }
 
 export const UNIVERSE_PLUGINS: UniversePlugin[] = [
+  { id: "ollama", name: "Ollama local AI", scope: "local", state: "desktop-only" },
   { id: "gemini", name: "Gemini intelligence", scope: "cloud", state: "available" },
   { id: "nasa", name: "NASA live data", scope: "cloud", state: "available" },
   { id: "science", name: "Science toolkit", scope: "builtin", state: "available" },

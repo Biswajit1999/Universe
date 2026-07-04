@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 
 const STYLES: Record<DataMode, string> = {
   live: "bg-emerald-400/15 text-emerald-300 border-emerald-400/30",
+  local: "bg-cyan-400/15 text-cyan-200 border-cyan-400/30",
   demo: "bg-sky-400/15 text-sky-300 border-sky-400/30",
   estimated: "bg-amber-400/15 text-amber-300 border-amber-400/30",
   simulated: "bg-violet-400/15 text-violet-300 border-violet-400/30",
@@ -10,6 +11,7 @@ const STYLES: Record<DataMode, string> = {
 
 const LABELS: Record<DataMode, string> = {
   live: "Live",
+  local: "Local",
   demo: "Demo",
   estimated: "Estimated",
   simulated: "Simulated",

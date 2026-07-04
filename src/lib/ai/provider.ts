@@ -1,10 +1,10 @@
 /**
  * AI provider abstraction.
  *
- * askAI() tries the live provider (Gemini via /api/ai) unless the app is in
+ * askAI() tries the configured provider (local Ollama or Gemini via /api/ai) unless the app is in
  * Demo Mode; if the server has no key or errors, it falls back to the offline
  * mock provider. The response always carries `mode` + `provider` so the UI
- * can label the answer honestly ("Live" vs "Demo AI").
+ * can label the answer honestly ("Local", "Live" or "Demo").
  *
  * To add a provider (OpenAI, local Ollama, Firebase AI Logic…):
  *  1. Implement generate(req): Promise<AIResponse>
@@ -25,9 +25,9 @@ async function liveGenerate(req: AIRequest): Promise<AIResponse | null> {
       }),
     });
     if (!res.ok) return null;
-    const data = (await res.json()) as { text?: string; provider?: string };
+    const data = (await res.json()) as { text?: string; provider?: string; mode?: AIResponse["mode"] };
     if (!data.text) return null; // server reports demo mode (no key configured)
-    return { text: data.text, mode: "live", provider: data.provider ?? "gemini" };
+    return { text: data.text, mode: data.mode ?? "live", provider: data.provider ?? "configured-ai" };
   } catch {
     return null;
   }

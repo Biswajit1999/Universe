@@ -1,6 +1,6 @@
 /**
  * Offline mock AI provider.
- * Used when no GEMINI_API_KEY is configured, or when Demo Mode is on.
+ * Used when no configured model is available, or when Demo Mode is on.
  * Every response is honestly labelled `mode: "demo"` and rendered with a
  * "Demo AI" badge — it never pretends to be a live model.
  */
@@ -121,7 +121,7 @@ The rule that matters most: every week must end in an artefact, not just reading
 - **Limitations:** what the authors concede, and what they don't.
 - **Relevance to you:** how it connects to your current work.
 
-*Note: I'm running in offline demo mode — connect a Gemini API key in .env.local for full generative summaries of pasted text.*`;
+*Note: I'm running in offline demo mode — select a local Ollama model or configure Gemini for full generative summaries of pasted text.*`;
   }
 
   if (p.includes("what if") || p.includes("simulate")) {
@@ -142,7 +142,7 @@ State your scenario as parameter changes (mass, distance, temperature…) and th
 - **Plan** — study roadmaps, research plans (or the Research Copilot)
 - **Simulate** — "what if gravity were 5% weaker?" (Simulation Lab)
 
-*I'm currently the offline demo provider. Add a GEMINI_API_KEY in .env.local to switch to a live model — the badge on my replies will change from "Demo AI" to "Live".*`;
+*I'm currently the offline demo provider. In the desktop app, open Settings → Local intelligence to select an Ollama model or configure Gemini.*`;
 }
 
 function extractTopic(prompt: string): string | null {
